@@ -66,13 +66,13 @@ class AnJuKe():
 
 
     def get_ershoufang(self):
-        for i in range(1, 21):
+        for i in range(1, 51):
             url = 'https://nanjing.anjuke.com/sale/p%s/' % (i)
             print(url)
             tree = self.get_tree(url)
             titles = tree.xpath('//div[@class="house-title"]/a[@title]/text()').extract()
             titles = [title.replace("\n","") for title in titles]
-            print(titles)
+            #print(titles)
             details = tree.xpath('//div[@class="details-item"][1]').xpath('string(.)').extract()
             details = [detail.replace("\n","").replace(" ","") for detail in details]
             locations = tree.xpath('//div[@class="details-item"][2]').xpath('string(.)').extract()
@@ -89,7 +89,7 @@ class AnJuKe():
             pages_info = pd.DataFrame(list(zip(titles, locations, details, tags, prices
                                                )),
                                       columns=['Title', 'Location', 'Details', 'Tags', "Prices"])
-            print(pages_info["Title"])
+            #print(pages_info["Title"])
 
             self.nj_ershoufang_anjuke = pd.concat([self.nj_ershoufang_anjuke, pages_info], ignore_index=True)
             time.sleep(5)
