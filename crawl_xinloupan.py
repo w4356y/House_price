@@ -10,10 +10,9 @@ from datetime import date
 
 #############################################################
 '''
-这个模块爬取链家网福田区的二手房信息；仅仅爬取了前100页的数据
-为了避免反爬虫策略，设定每5秒钟抓取一页信息
-@time=2020-05-10
-@author=wjiang
+爬取链家南京市新楼盘数据
+@time="2020-05-10"
+@author="Wei Jiang"
 '''
 
 ###########################################################
@@ -26,7 +25,7 @@ headers = {
 base_url = "https://nj.fang.lianjia.com/loupan"
 
 ############################################################
-
+## 提取页码最大数字
 def get_maxPage(url):
     wr = requests.get(url, headers=headers, stream=True)
     sel = Selector(wr.text)
@@ -37,6 +36,7 @@ def get_maxPage(url):
     #print(pages)
 
 #############################################################
+## 输出数据框列名
 nj_loupan = pd.DataFrame(columns=['Title', 'Type', 'Status','District',"Street",
                                        "Location","Room","Area","Tags",
                                        "Unit_Price","Total_Price"]
@@ -44,14 +44,14 @@ nj_loupan = pd.DataFrame(columns=['Title', 'Type', 'Status','District',"Street",
 
 count = 0
 
-
+## 根据城市名称和房源类型以及时间生成相应文件
 def get_outFile(city, type):
     today = date.today()
     print("Today's date:", today)
     filename = '_'.join([city,type,str(today)]) + ".xlsx"
     return(filename)
 
-
+## 解析网页数据
 def l_par_html(url):
     # 这个函数是用来获取链家网南京新房的信息
     wr = requests.get(url, headers=headers, stream=True)
@@ -71,7 +71,9 @@ def l_par_html(url):
     areas = sel.xpath('//ul/li/div/div[@class="resblock-area"]').xpath('string(.)').extract()
     areas = [area.replace("\n","").replace(" ","") for area in areas]
     tags = sel.xpath('//ul/li/div/div[@class="resblock-tag"]').xpath('string(.)').extract()
-    tags = [tag.replace("\n","").replace(" ","") for tag in tags]
+    #print(tags)
+    tags = [tag.replace(" ","").replace("\n"," ") for tag in tags]
+    #print(tags)
     unit_price = sel.xpath('//ul/li/div/div[@class="resblock-price"]/div/span[@class="number"]/text()').extract()
     total_price = sel.xpath('//ul/li/div/div[@class="resblock-price"]').xpath('string(.)').extract()
     total_price = [price.replace("\n","").replace(" ","") for price in total_price]

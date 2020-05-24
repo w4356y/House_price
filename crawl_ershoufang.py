@@ -9,10 +9,9 @@ import time
 from datetime import date
 #############################################################
 '''
-这个模块爬取链家网福田区的二手房信息；仅仅爬取了前100页的数据
-为了避免反爬虫策略，设定每5秒钟抓取一页信息
-@time=2017-10-24
-@author=wq
+爬取链家南京二手房信息
+@time="202005"
+@author="Wei Jiang"
 '''
 
 ###########################################################
@@ -22,10 +21,11 @@ headers = {
 
 }
 # pages是不同页码的网址列表,由于网页只显示前100页
-pages = ['https://nj.lianjia.com/ershoufang/pg{}/'.format(x) for x in range(1, 101)]
+pages = ['https://nj.lianjia.com/ershoufang/jiangning/pg{}/'.format(x) for x in range(1, 101)]
 ############################################################
 
 #############################################################
+## 输出数据框列名
 lj_futian = pd.DataFrame(columns=['Title', 'Position1', 'Position2',
                                   'HouseInfo',"FollowInfo","Tags",
                                   "Total_Price","Unit_Price"]
@@ -33,7 +33,7 @@ lj_futian = pd.DataFrame(columns=['Title', 'Position1', 'Position2',
 
 count = 0
 
-
+## 提取页码最大数字
 def get_maxPage(url):
     wr = requests.get(url, headers=headers, stream=True)
     sel = Selector(wr.text)
@@ -42,14 +42,14 @@ def get_maxPage(url):
     n_page = (int(pages[0]) // 10) + 1
     return(n_page)
 
-
+## 根据城市名称和房源类型以及时间生成相应文件
 def get_outFile(city, type):
     today = date.today()
     print("Today's date:", today)
     filename = '_'.join([city,type,str(today)]) + ".xlsx"
     return(filename)
 
-
+## 解析网页数据
 def l_par_html(url):
     # 这个函数是用来获取链家网南京二手房的信息
     wr = requests.get(url, headers=headers, stream=True)
@@ -61,7 +61,7 @@ def l_par_html(url):
     houseInfo = sel.xpath('//li//div//div[@class="address"]//div/text()').extract()
     followInfo = sel.xpath('//li//div//div[@class="followInfo"]/text()').extract()
     tags = sel.xpath('//li//div//div[@class="tag"]').xpath('string(.)').extract()
-    #print(tags)
+    # print(tags)
     #tag_taxfree = sel.xpath('//li//div//div[@class="tag"]/span[@class="taxfree"]/text()').extract()
     #tag_haskey = sel.xpath('//li//div//div[@class="tag"]/span[@class="haskey"]/text()').extract()
     total_price = sel.xpath('//li//div//div[@class="priceInfo"]//div[@class="totalPrice"]//span/text()').extract()
@@ -76,7 +76,7 @@ def l_par_html(url):
     return pages_info
 
 if __name__ == "__main__":
-    file = get_outFile(city="nanjing", type="ershoufang")
+    file = get_outFile(city="nanjing", type="ershoufang_jiangning")
     dir = "d:/HousePrice"
     print(file)
     for page in pages:
