@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>南京房价调研</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="江伟" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <script src="libs/kePrint-0.0.1/kePrint.js"></script>
+    <script src="libs/htmlwidgets-1.5.1/htmlwidgets.js"></script>
+    <script src="libs/jquery-1.12.4/jquery.min.js"></script>
+    <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+    <script src="libs/datatables-binding-0.12/datatables.js"></script>
+    <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
+    <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
+    <link href="libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+    <script src="libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
+    <link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
+    <script src="libs/leaflet-1.3.1/leaflet.js"></script>
+    <link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
+    <script src="libs/Proj4Leaflet-1.0.1/proj4-compressed.js"></script>
+    <script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+    <link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
+    <script src="libs/leaflet-binding-2.0.3/leaflet.js"></script>
+    <link rel="stylesheet" href="custom.css" type="text/css" />
+    <link rel="stylesheet" href="zh-CN.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# 南京房价调研
+## 新房
+### 江伟
+### 2020/05/21
+
+---
+
+background-image: url(http://img.univs.cn/webfile/event/279/4457082/272F7EF0-38F3-11E4-A154-F15F2C3DF0D0/1410358107229_4457082.jpg)
+
+class: center, middle
+# .title1[Overview]
+
+.red[1\\. 房源分布/统计]
+
+.red[2\\. 房价基本分析]
+
+.red[3\\. 区域房价分析]
+
+---
+class: inverse, middle, center
+
+## 房源分布/统计
+.center[
+.sub[总体分布]；
+
+.sub[区域统计]；
+]
+---
+class: inverse, middle, center
+
+### 总体分布
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+class: left, top
+
+### 总体分布
+#### 房源区域分布
+
+
+
+```r
+setwd("D:/HousePrice")
+## Read data from extracted data from lianjia
+df_loupan = read_xlsx("nanjing_xinloupan_2020-05-18.xlsx") %&gt;% select(-c(1)) %&gt;% distinct()
+## Extract the min, max area and Total price
+df_loupan &lt;- df_loupan %&gt;% mutate(Total_Price = str_replace(Total_Price,"\\s","")) %&gt;%  mutate(Area_small = str_extract(Area,"建面\\d*"), Area_big = str_extract(Area, "-\\d*"), T_price = str_extract(Total_Price,"\\d+\\.*\\d*万"), Unit_price = str_extract(Total_Price, "^\\d*元")) %&gt;% mutate(Area_small = str_replace(Area_small, "建面",""), Area_big = str_replace(Area_big,"-",""), T_price = str_replace_all(T_price, c("万" = ""," " = "")), Unit_price = str_replace_all(Unit_price,c("元" ="", "\\s" = "")))
+## Get the house dietribution by district
+df_loupan$District %&gt;% table(dnn = "District") %&gt;% as.data.frame() %&gt;% arrange(desc(Freq)) %&gt;% t()  %&gt;% as.data.frame() %&gt;% kable(.,format = 'markdown', col.names = NULL)
+```
+
+
+
+|         |     |     |     |     |     |     |     |       |     |     |     |     |       |     |       |
+|:--------|:----|:----|:----|:----|:----|:----|:----|:------|:----|:----|:----|:----|:------|:----|:------|
+|District |江宁 |浦口 |句容 |栖霞 |溧水 |建邺 |六合 |雨花台 |鼓楼 |高淳 |玄武 |秦淮 |来安县 |和县 |南谯区 |
+|Freq     |171  |133  |80   |76   |67   |59   |53   |50     |47   |39   |27   |22   |8      |4    |4      |
+
+- .conclusion[江宁浦口房源最多，市场最热；]
+- .conclusion[句容作为新兴市场，新房源增添较多；]
+- .conclusion[玄武, 秦淮等市中心位置房源增加有限；]
+
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 总体分布
+#### 房源类型
+
+- .conclusion[住宅在新房源中占比超过50%；]
+.center[
+![](Nanjing_files/figure-html/district_stat-1.png)&lt;!-- --&gt;
+]
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 总体分布
+#### 房屋状态
+- .conclusion[!!新房源在售比例不超过55%，而售罄比例达到40%；]
+.center[
+![](Nanjing_files/figure-html/status_stat-1.png)&lt;!-- --&gt;
+]
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 总体分布
+#### 房屋总价
+- .conclusion[!!超过30%的房价超过300万，50~150万接近30%，150~280万占比超过25%；]
+.center[
+![](Nanjing_files/figure-html/totalprice_stat-1.png)&lt;!-- --&gt;
+]
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 总体分布
+#### 房屋总价
+- .conclusion[!!1.5~3万的均价占比约45%；]
+.center[
+![](Nanjing_files/figure-html/unitprice_stat-1.png)&lt;!-- --&gt;
+]
+---
+class: inverse, middle, center
+
+### 区域统计
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 区域分布
+#### 房源分布
+- 房源区域分布
+.center[
+
+|         |     |     |     |     |     |     |     |       |     |     |     |     |       |     |       |
+|:--------|:----|:----|:----|:----|:----|:----|:----|:------|:----|:----|:----|:----|:------|:----|:------|
+|District |江宁 |浦口 |句容 |栖霞 |溧水 |建邺 |六合 |雨花台 |鼓楼 |高淳 |玄武 |秦淮 |来安县 |和县 |南谯区 |
+|Freq     |171  |133  |80   |76   |67   |59   |53   |50     |47   |39   |27   |22   |8      |4    |4      |
+]
+
+
+
+- 街道区域分布
+.center[
+
+|         |     |     |     |     |       |     |     |     |     |     |     |     |     |       |       |
+|:--------|:----|:----|:----|:----|:------|:----|:----|:----|:----|:----|:----|:----|:----|:------|:------|
+|District |江宁 |鼓楼 |秦淮 |栖霞 |雨花台 |建邺 |浦口 |溧水 |六合 |玄武 |句容 |高淳 |和县 |来安县 |南谯区 |
+|n_street |14   |12   |11   |10   |10     |9    |6    |5    |5    |5    |4    |1    |1    |1      |1      |
+]
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 区域分布
+#### 房源类型/状态分布
+.table1[
+&lt;table class="table" style="font-size: 12px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="border-bottom:hidden" colspan="2"&gt;&lt;/th&gt;
+&lt;th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; font-weight: bold; color: green !important;font-size: 15px;" colspan="4"&gt;&lt;div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; "&gt;状态&lt;/div&gt;&lt;/th&gt;
+&lt;th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; font-weight: bold; color: green !important;font-size: 15px;" colspan="5"&gt;&lt;div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; "&gt;类型&lt;/div&gt;&lt;/th&gt;
+&lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; District &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 数量 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 售罄 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 在售 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 未开盘 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 下期待开 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 住宅 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 商业 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 别墅 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 写字楼 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 酒店式公寓 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 江宁 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 171 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 77 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 87 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 100 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 36 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 浦口 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 133 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 46 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 80 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 76 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 24 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 句容 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 80 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 56 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 59 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 15 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 栖霞 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 76 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 37 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 35 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 37 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 溧水 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 67 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 25 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 37 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 建邺 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 59 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 30 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 24 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 26 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 六合 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 53 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 24 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 28 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 37 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 雨花台 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 50 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 21 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 26 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 25 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 鼓楼 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 47 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 21 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 22 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 17 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 高淳 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 39 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 27 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 31 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 玄武 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 27 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 秦淮 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 22 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 来安县 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 和县 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 南谯区 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 区域分布
+#### 房源类型/状态分布
+.table2[
+<div id="htmlwidget-afb745d0a9dd57ec1c9a" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-afb745d0a9dd57ec1c9a">{"x":{"filter":"none","fillContainer":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"],["江宁","浦口","句容","栖霞","溧水","建邺","六合","雨花台","鼓楼","高淳","玄武","秦淮","来安县","和县","南谯区"],[171,133,80,76,67,59,53,50,47,39,27,22,8,4,4],[77,46,19,37,25,30,24,21,21,11,14,10,1,1,1],[87,80,56,35,37,24,28,26,22,27,13,12,6,3,3],[5,7,2,4,4,5,1,3,3,1,0,0,0,0,0],[2,0,3,0,1,0,0,0,1,0,0,0,1,0,0],[100,76,59,37,44,26,37,25,17,31,9,5,7,3,4],[11,13,2,10,5,6,3,8,12,1,5,4,0,0,0],[36,24,15,6,14,2,7,3,0,6,4,5,0,1,0],[10,9,1,13,3,12,4,10,10,0,5,2,0,0,0],[7,6,0,3,0,7,0,3,6,0,0,4,0,0,0]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>District<\/th>\n      <th>数量<\/th>\n      <th>售罄<\/th>\n      <th>在售<\/th>\n      <th>未开盘<\/th>\n      <th>下期待开<\/th>\n      <th>住宅<\/th>\n      <th>商业<\/th>\n      <th>别墅<\/th>\n      <th>写字楼<\/th>\n      <th>酒店式公寓<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":8,"columnDefs":[{"className":"dt-right","targets":[2,3,4,5,6,7,8,9,10,11]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[8,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+]
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 区域分布
+#### 区域单价分段统计
+.table1[
+
+| District | 数量 | 1.0~1.5w | 1.5~2.0w | 2.0~2.25w | 2.25~2.5w | 2.5~2.75w | 2.75~3.0w | 3.0w+ |
+|:--------:|:----:|:--------:|:--------:|:---------:|:---------:|:---------:|:---------:|:-----:|
+|   江宁   |  99  |    6     |    19    |    12     |    13     |    18     |    14     |  17   |
+|   浦口   |  95  |    6     |    9     |    12     |    12     |    15     |    17     |  24   |
+|   句容   |  52  |    36    |    8     |     0     |     5     |     1     |     0     |   2   |
+|   栖霞   |  51  |    1     |    13    |     4     |     6     |     3     |     8     |  16   |
+|   鼓楼   |  34  |    0     |    8     |     0     |     1     |     0     |     1     |  24   |
+|   建邺   |  34  |    0     |    1     |     2     |     4     |     3     |     2     |  22   |
+|   溧水   |  34  |    23    |    8     |     0     |     0     |     0     |     1     |   2   |
+|   六合   |  33  |    22    |    8     |     1     |     0     |     0     |     0     |   2   |
+|  雨花台  |  31  |    2     |    5     |     1     |     4     |     1     |     2     |  16   |
+|   高淳   |  17  |    12    |    2     |     2     |     0     |     0     |     1     |   0   |
+|   玄武   |  15  |    0     |    1     |     0     |     2     |     2     |     0     |  10   |
+|   秦淮   |  8   |    0     |    0     |     1     |     1     |     0     |     0     |   6   |
+|  来安县  |  2   |    2     |    0     |     0     |     0     |     0     |     0     |   0   |
+|   和县   |  1   |    1     |    0     |     0     |     0     |     0     |     0     |   0   |
+]
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 区域分布
+#### 区域总价分段统计
+.table1[
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; District &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 数量 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 39~100w &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 100~150w &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 150~200w &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 200~230w &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 230~270w &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 270~300w &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 300w+ &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 江宁 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 83 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 28 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 浦口 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 74 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 34 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 句容 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 32 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 溧水 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 31 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 高淳 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 26 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 栖霞 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 25 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 六合 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 23 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 建邺 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 18 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 11 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 秦淮 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 雨花台 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 鼓楼 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 玄武 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 来安县 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 南谯区 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 和县 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+---
+
+# HTML 控件
+
+我没有仔细测试 [HTML 控件](https://htmlwidgets.org)，祝你好运。下一页上有两个例子，一个地图，一个表格，目测貌似可用。
+
+目前也不支持 Shiny 模式（即 `runtime: shiny`）。还是别把你的幻灯片搞辣么复杂吧。
+
+---
+
+
+```r
+library(leaflet)
+leaflet() %&gt;% addTiles() %&gt;% setView(-93.65, 42.0285, zoom = 17)
+```
+
+<div id="htmlwidget-edec69f7bda48a14676b" style="width:100%;height:432px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-edec69f7bda48a14676b">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]}],"setView":[[42.0285,-93.65],17,[]]},"evals":[],"jsHooks":[]}</script>
+
+---
+
+
+```r
+DT::datatable(
+  head(iris, 10),
+  fillContainer = FALSE, options = list(pageLength = 8)
+)
+```
+
+<div id="htmlwidget-c77b40881ff001c66720" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-c77b40881ff001c66720">{"x":{"filter":"none","fillContainer":false,"data":[["1","2","3","4","5","6","7","8","9","10"],[5.1,4.9,4.7,4.6,5,5.4,4.6,5,4.4,4.9],[3.5,3,3.2,3.1,3.6,3.9,3.4,3.4,2.9,3.1],[1.4,1.4,1.3,1.5,1.4,1.7,1.4,1.5,1.4,1.5],[0.2,0.2,0.2,0.2,0.2,0.4,0.3,0.2,0.2,0.1],["setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Sepal.Length<\/th>\n      <th>Sepal.Width<\/th>\n      <th>Petal.Length<\/th>\n      <th>Petal.Width<\/th>\n      <th>Species<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":8,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[8,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# 一些小技能
+
+- “Infinite Moon Reader”插件默认情况下会锁住你的 R 进程，有它没你，有你没它。你可以设置一个选项，让它一边儿凉快去：
+
+    ```r
+    options(servr.daemon = TRUE)
+    ```
+    
+    你可以把这个设置写在 `~/.Rprofile` 文件中，这样你将来所有 R 进程都不会被这个插件挡住去路。
+    
+    这事情背后的魔法在 [**servr**](https://github.com/yihui/servr) 包中。
+
+--
+
+- 别忘了玩一下 `yolo` 选项，如：
+
+    ```yaml
+    output:
+      xaringan::moon_reader:
+        yolo: 3
+    ```
+
+    它会随机显示 Karl Broman 的照片；这里地方太小，写不下故事的来龙去脉。
+
+---
+
+# 一些小技能
+
+- `nature` 下面的 `autoplay` 选项可以用来自动播放幻灯片，它的取值是毫秒，例如每 30 秒播放一张片子：
+
+    ```yaml
+    output:
+      xaringan::moon_reader:
+        nature:
+          autoplay: 30000
+    ```
+
+--
+
+- `nature` 下面的 `countdown` 选项可以为每一页幻灯片添加一个（倒数）计时器，取值同样为毫秒，例如每一页片子都用 60 秒倒计时：
+
+    ```yaml
+    output:
+      xaringan::moon_reader:
+        nature:
+          countdown: 60000
+    ```
+
+---
+
+# 一些小技能
+
+- 一页片子可以分割成一步步播放，参见[这个示例](https://slides.yihui.org/xaringan/incremental.html)。
+
+- 选项 `highlightLines: true` 可以让以 `*` 开头或者双重大括号 `{{ }}` 里面的代码被高亮出来；
+
+    ```yaml
+    output:
+      xaringan::moon_reader:
+        nature:
+          highlightLines: true
+    ```
+
+    下一页我们举两个栗子。
+
+---
+
+# 一些小技能
+
+.pull-left[
+以 `*` 开头的代码：
+
+    ```r
+    if (TRUE) {
+    ** message("敲黑板！划重点！")
+    }
+    ```
+输出：
+```r
+if (TRUE) {
+* message("敲黑板！划重点！")
+}
+```
+
+因为它不是合法的 R 代码，所以不能作为 R 代码段来写，只能用三个反引号直接跟 r（就知道你没听懂）。
+]
+
+.pull-right[
+用 `{{}}` 包裹的代码：
+
+````
+```{r tidy=FALSE}
+if (TRUE) {
+*{{ message("敲黑板！划重点！") }}
+}
+```
+````
+
+输出：
+
+```r
+if (TRUE) {
+* message("敲黑板！划重点！") 
+}
+```
+
+```
+## 敲黑板！划重点！
+```
+
+这是合法的 R 代码，所以你可以真的运行它。
+]
+
+---
+
+# CSS（层叠样式表）
+
+`xaringan::moon_reader` 的所有选项中，最强的魔法在 `css` 选项上，它是自定义幻灯片样式的关键。如果你不懂 CSS 的话，我强烈建议你学习一些 CSS 的基础知识。
+
+对中文幻灯片，**xaringan** 包中的默认 CSS 文件在[这里](https://github.com/yihui/xaringan/blob/master/inst/rmarkdown/templates/xaringan_zh-CN/skeleton/zh-CN.css)，你可以在它的基础上改装，也可以直接定义全新的 CSS 样式。
+
+---
+
+# CSS（层叠样式表）
+
+举个栗子。比如你想将一段文字的颜色改为红色，你可以定义一个 CSS 类，如：
+
+```css
+.red {
+  color: #FF0000;
+}
+```
+
+我们把这段代码保存在一个 CSS 文件中，如 `extra.css`（假设它跟你的 R Markdown 文件在同一文件夹下），然后通过 `css` 选项将它引入：
+
+```yaml
+output:
+  xaringan::moon_reader:
+    css: ["zh-CN.css", "extra.css"]
+```
+
+其中 `zh-CN.css` 是本包已经为你提供的 CSS 样式文件（你可选择用或不用）。
+
+现在在 R Markdown 中你就可以用 `.red[]` 来标记一段文字为红色，如 `.red[我是红色的]`。
+
+---
+
+# CSS（层叠样式表）
+
+如果想在墙内用 Google 字体的话，可以试试这个 [google-webfonts-helper](https://google-webfonts-helper.herokuapp.com/fonts) 应用，它会把字体下载到本地并生成相应的 CSS 文件。也可以考虑 360 的 [CDN 服务](http://libs.useso.com)。
+
+可惜中文不像英文，没有很新奇酷炫的网络字体，只能靠你电脑上的字体硬撑了。
+
+---
+class: inverse, middle, center
+background-image: url(https://upload.wikimedia.org/wikipedia/commons/3/39/Naruto_Shiki_Fujin.svg)
+background-size: contain
+
+# 火影忍者
+
+---
+background-image: url(https://upload.wikimedia.org/wikipedia/commons/b/be/Sharingan_triple.svg)
+background-size: 100px
+background-position: 90% 8%
+
+# 写轮眼
+
+**xaringan** 这个名字来源于火影中的写轮眼 **Sharingan**。&lt;sup&gt;1&lt;/sup&gt; 写轮眼有两大能力：
+
+- 洞察眼
+
+- 催眠眼
+
+其实做演示就是将自己的洞见传递给听众；好的演讲通常有催眠效果，因为它可以深度震撼人心。&lt;sup&gt;2,3&lt;/sup&gt;
+
+.footnote[
+[1] 我把 Sh 换成 X 了，因为几乎没有一个歪果仁读对过我的姓。当然主要原因还是 xaringan 搜索起来更容易被搜到。
+
+[2] 糟糕的演讲也可以催眠听众，但显然这两种催眠完全不同。
+
+[3] 我之所以选择了 remark.js 框架，就是因为它可以设置背景图。对我而言，在一页片子上整页显示一幅图最能表达震撼的视觉效果，现有的 R Markdown 幻灯片框架都缺乏这个功能，不开森。当时我发现 remark.js 之后真的是激动地不要不要的，等了一个月才抽出空来把这个包写出来。
+]
+
+---
+
+# 火影术语
+
+简单介绍一下这个包里那些奇怪的术语的由来：
+
+- [写轮眼](http://naruto.wikia.com/wiki/Sharingan)（包名，已解释）
+
+- [月读](http://naruto.wikia.com/wiki/Moon_Reader)（我希望这个 R Markdown 格式 `moon_reader` 能将听众控制在幻象中）
+
+- [查克拉](http://naruto.wikia.com/wiki/Chakra)（月读的参数之一 `chakra`，意思是 remark.js 的路径，它是支撑幻灯片的核心动力）
+
+- [性质变化](http://naruto.wikia.com/wiki/Nature_Transformation)（月读的参数之一 `nature`，意思是通过设置选项改变查克拉的性质）
+
+- [无限月读](http://naruto.wikia.com/wiki/Infinite_Tsukuyomi)（函数 `infinite_moon_reader()` 开启一个服务器不断刷新更新后的幻灯片，RStudio 插件背后对应的就是这个函数）
+
+- [通灵术](http://naruto.wikia.com/wiki/Summoning_Technique)（`summon_remark()` 从网络上把 remark.js 通灵到本地）
+
+月读这个忍术有点邪恶，不过你就当不知道吧。
+
+---
+
+# 结印
+
+使用本包单手就可以结印，按键 `h` 或者 `?` 之后就可以看见所有结印手势，例如 `p` 进入演讲者模式（可看见写给自己的注释，比如提醒自己要讲的笑话），`c` 复制幻灯片到新窗口；演讲时可以在自己面前的屏幕上显示演讲者模式，把新窗口中正常的幻灯片拖到大屏幕投影上给观众看。
+
+.center[![](https://upload.wikimedia.org/wikipedia/commons/7/7e/Mudra-Naruto-KageBunshin.svg)]
+
+???
+
+嗯，我们来讲一个不容易看懂的冷笑话。
+
+![](https://img-9gag-fun.9cache.com/photo/aMGp7bM_700b_v2.jpg)
+
+---
+
+class: center, middle
+
+# 蟹蟹
+
+本幻灯片由 R 包 [**xaringan**](https://github.com/yihui/xaringan) 生成；
+
+查克拉来自于 [remark.js](https://remarkjs.com)、[**knitr**](http://yihui.org/knitr)、以及 [R Markdown](https://rmarkdown.rstudio.com)。
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

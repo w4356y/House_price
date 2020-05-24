@@ -1,0 +1,457 @@
+---
+background-image: url(http://img.univs.cn/webfile/event/279/4457082/272F7EF0-38F3-11E4-A154-F15F2C3DF0D0/1410358107229_4457082.jpg)
+title: "南京房价调研"
+subtitle: "新房"
+author: "江伟"
+institute: ""
+date: "2020/05/21"
+output:
+  xaringan::moon_reader:
+    css: [default, "custom.css", "zh-CN.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+background-image: url(http://img.univs.cn/webfile/event/279/4457082/272F7EF0-38F3-11E4-A154-F15F2C3DF0D0/1410358107229_4457082.jpg)
+
+class: center, middle
+# .title1[Overview]
+
+.red[1\\. 房源分布/统计]
+
+.red[2\\. 房价基本分析]
+
+.red[3\\. 区域房价分析]
+
+---
+class: inverse, middle, center
+
+## 房源分布/统计
+.center[
+.sub[总体分布]；
+
+.sub[区域统计]；
+]
+---
+class: inverse, middle, center
+
+### 总体分布
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+class: left, top
+
+### 总体分布
+#### 房源区域分布
+
+```{r set, include=FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("D:/HousePrice")
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(knitr)
+library(kableExtra)
+source("plot_func.R")
+print("ok")
+```
+```{r load, message=FALSE, warning = FALSE}
+setwd("D:/HousePrice")
+## Read data from extracted data from lianjia
+df_loupan = read_xlsx("nanjing_xinloupan_2020-05-18.xlsx") %>% select(-c(1)) %>% distinct()
+## Extract the min, max area and Total price
+df_loupan <- df_loupan %>% mutate(Total_Price = str_replace(Total_Price,"\\s","")) %>%  mutate(Area_small = str_extract(Area,"建面\\d*"), Area_big = str_extract(Area, "-\\d*"), T_price = str_extract(Total_Price,"\\d+\\.*\\d*万"), Unit_price = str_extract(Total_Price, "^\\d*元")) %>% mutate(Area_small = str_replace(Area_small, "建面",""), Area_big = str_replace(Area_big,"-",""), T_price = str_replace_all(T_price, c("万" = ""," " = "")), Unit_price = str_replace_all(Unit_price,c("元" ="", "\\s" = "")))
+## Get the house dietribution by district
+df_loupan$District %>% table(dnn = "District") %>% as.data.frame() %>% arrange(desc(Freq)) %>% t()  %>% as.data.frame() %>% kable(.,format = 'markdown', col.names = NULL)
+```
+
+- .conclusion[江宁浦口房源最多，市场最热；]
+- .conclusion[句容作为新兴市场，新房源增添较多；]
+- .conclusion[玄武, 秦淮等市中心位置房源增加有限；]
+
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 总体分布
+#### 房源类型
+
+- .conclusion[住宅在新房源中占比超过50%；]
+.center[
+```{r district_stat, echo=FALSE, fig.width= 7.5, fig.height=5}
+## The distribution of house type
+hist_pie(df_loupan$Type,scale = 0.7)
+```
+]
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 总体分布
+#### 房屋状态
+- .conclusion[!!新房源在售比例不超过55%，而售罄比例达到40%；]
+.center[
+```{r status_stat, echo=FALSE, fig.width= 7.5, fig.height=5}
+## The distribution of house type
+hist_pie(df_loupan$Status,scale = 0.7)
+```
+]
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 总体分布
+#### 房屋总价
+- .conclusion[!!超过30%的房价超过300万，50~150万接近30%，150~280万占比超过25%；]
+.center[
+```{r totalprice_stat, echo=FALSE, fig.width= 7.5, fig.height=5}
+## The distribution of total price
+filter(df_loupan, !is.na(T_price)) %>% pull(T_price) %>% str_replace_all(.,"\\s","") %>%  as.numeric() %>% cut(., breaks = c(0,50,100,150,200,240,280,300, 9000))  %>% hist_pie(., scale = 0.6)
+```
+]
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 总体分布
+#### 房屋总价
+- .conclusion[!!1.5~3万的均价占比约45%；]
+.center[
+```{r unitprice_stat, echo=FALSE, fig.width= 7.5, fig.height=5}
+## The distribution of unit price
+df_loupan$Unit_price[!is.na(df_loupan$Unit_price)] %>% as.numeric() %>% cut(., breaks = c(0,10000, 15000,20000, 25000,30000, 100000),na.rm = T) %>% hist_pie(.,scale = 0.5)
+```
+]
+---
+class: inverse, middle, center
+
+### 区域统计
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 区域分布
+#### 房源分布
+- 房源区域分布
+.center[
+```{r district_stat1, echo=FALSE, fig.width= 7.5, fig.height=5, warning=FALSE}
+## Get the house dietribution by district
+df_loupan$District %>% table(dnn = "District") %>% as.data.frame() %>% arrange(desc(Freq)) %>% t()  %>% as.data.frame() %>% kable(.,format = 'markdown', col.names = NULL)
+```
+]
+
+
+
+- 街道区域分布
+.center[
+```{r  street_stat, echo=FALSE, fig.width= 7.5, fig.height=5, warning=FALSE}
+## Count the number of street in different district.
+df_loupan %>% select(District, Street) %>% group_by(District) %>% dplyr::summarise(n_street = n_distinct(Street)) %>% arrange(desc(n_street)) %>% t() %>% as.data.frame() %>% kable(.,format = 'markdown', col.names = NULL)
+```
+]
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 区域分布
+#### 房源类型/状态分布
+.table1[
+```{r group_stat, echo=FALSE, warning=FALSE}
+df_loupan %>% group_by(District) %>% summarise(数量 = n(),售罄 = sum(Status == "售罄"), 在售 = sum(Status == "在售"),未开盘 = sum(Status == "未开盘"),下期待开 = sum(Status == "下期待开"), 住宅 = sum(Type == "住宅"), 商业 = sum(Type == "商业"), 别墅 = sum(Type == "别墅"), 写字楼 = sum(Type == "写字楼"), 酒店式公寓=  sum(Type == "酒店式公寓")) %>% arrange(desc(数量))  %>%  kable(.,format = 'html',row.names = FALSE, align = "c", longtable = TRUE) %>%  kable_styling(full_width = T, font_size = 12) %>% add_header_above(header = c(" " = 2, "状态" = 4, "类型" = 5),font_size = 15 ,bold = T, italic = F, color = "green")
+```
+]
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 区域分布
+#### 房源类型/状态分布
+.table2[
+```{r group_stat_render, echo=FALSE, warning=FALSE,eval=require('DT'), tidy=FALSE}
+d1 = df_loupan %>% group_by(District) %>% summarise(数量 = n(),售罄 = sum(Status == "售罄"), 在售 = sum(Status == "在售"),未开盘 = sum(Status == "未开盘"),下期待开 = sum(Status == "下期待开"), 住宅 = sum(Type == "住宅"), 商业 = sum(Type == "商业"), 别墅 = sum(Type == "别墅"), 写字楼 = sum(Type == "写字楼"), 酒店式公寓=  sum(Type == "酒店式公寓")) %>% arrange(desc(数量)) 
+DT::datatable(
+  d1,
+  fillContainer = FALSE, options = list(pageLength = 8)
+)
+```
+]
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 区域分布
+#### 区域单价分段统计
+.table1[
+```{r unit_price_type, echo=FALSE, warning=FALSE}
+df_loupan %>%  filter(!is.na(Unit_price))  %>% mutate(Unit_price = as.numeric(Unit_price))  %>% filter(Unit_price > 10000) %>% mutate(unit_price_type = cut(Unit_price, breaks = c(9999, 15000,20000, 22500,25000,27500,30000, 100000),na.rm = T, labels = c("1.0~1.5w","1.5~2.0w","2.0~2.25w","2.25~2.5w","2.5~2.75w","2.75~3.0w","3.0w+"))) %>% group_by(District) %>% summarise(数量 = n(), `1.0~1.5w` = sum(unit_price_type == "1.0~1.5w"), `1.5~2.0w` = sum(unit_price_type == "1.5~2.0w"), `2.0~2.25w` = sum(unit_price_type == "2.0~2.25w"),`2.25~2.5w` = sum(unit_price_type == "2.25~2.5w"), `2.5~2.75w` = sum(unit_price_type == "2.5~2.75w"), `2.5~2.75w` = sum(unit_price_type == "2.5~2.75w"), `2.75~3.0w` = sum(unit_price_type == "2.75~3.0w"), `3.0w+` = sum(unit_price_type == "3.0w+"))  %>% arrange(desc(数量)) %>% kable(.,format = 'markdown',row.names = FALSE, align = "c", longtable = TRUE) 
+```
+]
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 区域分布
+#### 区域总价分段统计
+.table1[
+```{r total_price_type, echo=FALSE, warning=FALSE}
+df_loupan %>% filter(!is.na(T_price)) %>% mutate(T_price = as.numeric(str_replace_all(T_price, "\\s","")))  %>% mutate(T_price_type = cut(T_price, breaks = c(39,100,150, 200, 230,270, 300, 9000), labels = c("39~100w","100~150w","150~200w","200~230w","230~270w","270~300w","300w+"))) %>% group_by(District) %>% summarise(数量 = n(), `39~100w` = sum(T_price_type == "39~100w"), `100~150w` = sum(T_price_type == "100~150w"), `150~200w` = sum(T_price_type == "150~200w"),`200~230w` = sum(T_price_type == "200~230w"), `230~270w` = sum(T_price_type == "230~270w"),`270~300w` = sum(T_price_type == "270~300w"), `300w+` = sum(T_price_type == "300w+"))  %>% arrange(desc(数量)) %>% kable(.,format = 'html',row.names = FALSE, align = "c", longtable = TRUE) 
+```
+]
+
+---
+
+# HTML 控件
+
+我没有仔细测试 [HTML 控件](https://htmlwidgets.org)，祝你好运。下一页上有两个例子，一个地图，一个表格，目测貌似可用。
+
+目前也不支持 Shiny 模式（即 `runtime: shiny`）。还是别把你的幻灯片搞辣么复杂吧。
+
+---
+
+```{r out.width='100%', fig.height=6, eval=require('leaflet')}
+library(leaflet)
+leaflet() %>% addTiles() %>% setView(-93.65, 42.0285, zoom = 17)
+```
+
+---
+
+```{r eval=require('DT'), tidy=FALSE}
+DT::datatable(
+  head(iris, 10),
+  fillContainer = FALSE, options = list(pageLength = 8)
+)
+```
+
+---
+
+# 一些小技能
+
+- “Infinite Moon Reader”插件默认情况下会锁住你的 R 进程，有它没你，有你没它。你可以设置一个选项，让它一边儿凉快去：
+
+    ```r
+    options(servr.daemon = TRUE)
+    ```
+    
+    你可以把这个设置写在 `~/.Rprofile` 文件中，这样你将来所有 R 进程都不会被这个插件挡住去路。
+    
+    这事情背后的魔法在 [**servr**](https://github.com/yihui/servr) 包中。
+
+--
+
+- 别忘了玩一下 `yolo` 选项，如：
+
+    ```yaml
+    output:
+      xaringan::moon_reader:
+        yolo: 3
+    ```
+
+    它会随机显示 Karl Broman 的照片；这里地方太小，写不下故事的来龙去脉。
+
+---
+
+# 一些小技能
+
+- `nature` 下面的 `autoplay` 选项可以用来自动播放幻灯片，它的取值是毫秒，例如每 30 秒播放一张片子：
+
+    ```yaml
+    output:
+      xaringan::moon_reader:
+        nature:
+          autoplay: 30000
+    ```
+
+--
+
+- `nature` 下面的 `countdown` 选项可以为每一页幻灯片添加一个（倒数）计时器，取值同样为毫秒，例如每一页片子都用 60 秒倒计时：
+
+    ```yaml
+    output:
+      xaringan::moon_reader:
+        nature:
+          countdown: 60000
+    ```
+
+---
+
+# 一些小技能
+
+- 一页片子可以分割成一步步播放，参见[这个示例](https://slides.yihui.org/xaringan/incremental.html)。
+
+- 选项 `highlightLines: true` 可以让以 `*` 开头或者双重大括号 `{{ }}` 里面的代码被高亮出来；
+
+    ```yaml
+    output:
+      xaringan::moon_reader:
+        nature:
+          highlightLines: true
+    ```
+
+    下一页我们举两个栗子。
+
+---
+
+# 一些小技能
+
+.pull-left[
+以 `*` 开头的代码：
+
+    ```r
+    if (TRUE) {
+    ** message("敲黑板！划重点！")
+    }
+    ```
+输出：
+```r
+if (TRUE) {
+* message("敲黑板！划重点！")
+}
+```
+
+因为它不是合法的 R 代码，所以不能作为 R 代码段来写，只能用三个反引号直接跟 r（就知道你没听懂）。
+]
+
+.pull-right[
+用 `{{}}` 包裹的代码：
+
+````
+`r ''````{r tidy=FALSE}
+if (TRUE) {
+*{{ message("敲黑板！划重点！") }}
+}
+```
+````
+
+输出：
+```{r tidy=FALSE}
+if (TRUE) {
+{{ message("敲黑板！划重点！") }}
+}
+```
+
+这是合法的 R 代码，所以你可以真的运行它。
+]
+
+---
+
+# CSS（层叠样式表）
+
+`xaringan::moon_reader` 的所有选项中，最强的魔法在 `css` 选项上，它是自定义幻灯片样式的关键。如果你不懂 CSS 的话，我强烈建议你学习一些 CSS 的基础知识。
+
+对中文幻灯片，**xaringan** 包中的默认 CSS 文件在[这里](https://github.com/yihui/xaringan/blob/master/inst/rmarkdown/templates/xaringan_zh-CN/skeleton/zh-CN.css)，你可以在它的基础上改装，也可以直接定义全新的 CSS 样式。
+
+---
+
+# CSS（层叠样式表）
+
+举个栗子。比如你想将一段文字的颜色改为红色，你可以定义一个 CSS 类，如：
+
+```css
+.red {
+  color: #FF0000;
+}
+```
+
+我们把这段代码保存在一个 CSS 文件中，如 `extra.css`（假设它跟你的 R Markdown 文件在同一文件夹下），然后通过 `css` 选项将它引入：
+
+```yaml
+output:
+  xaringan::moon_reader:
+    css: ["zh-CN.css", "extra.css"]
+```
+
+其中 `zh-CN.css` 是本包已经为你提供的 CSS 样式文件（你可选择用或不用）。
+
+现在在 R Markdown 中你就可以用 `.red[]` 来标记一段文字为红色，如 `.red[我是红色的]`。
+
+---
+
+# CSS（层叠样式表）
+
+如果想在墙内用 Google 字体的话，可以试试这个 [google-webfonts-helper](https://google-webfonts-helper.herokuapp.com/fonts) 应用，它会把字体下载到本地并生成相应的 CSS 文件。也可以考虑 360 的 [CDN 服务](http://libs.useso.com)。
+
+可惜中文不像英文，没有很新奇酷炫的网络字体，只能靠你电脑上的字体硬撑了。
+
+---
+class: inverse, middle, center
+background-image: url(https://upload.wikimedia.org/wikipedia/commons/3/39/Naruto_Shiki_Fujin.svg)
+background-size: contain
+
+# 火影忍者
+
+---
+background-image: url(https://upload.wikimedia.org/wikipedia/commons/b/be/Sharingan_triple.svg)
+background-size: 100px
+background-position: 90% 8%
+
+# 写轮眼
+
+**xaringan** 这个名字来源于火影中的写轮眼 **Sharingan**。<sup>1</sup> 写轮眼有两大能力：
+
+- 洞察眼
+
+- 催眠眼
+
+其实做演示就是将自己的洞见传递给听众；好的演讲通常有催眠效果，因为它可以深度震撼人心。<sup>2,3</sup>
+
+.footnote[
+[1] 我把 Sh 换成 X 了，因为几乎没有一个歪果仁读对过我的姓。当然主要原因还是 xaringan 搜索起来更容易被搜到。
+
+[2] 糟糕的演讲也可以催眠听众，但显然这两种催眠完全不同。
+
+[3] 我之所以选择了 remark.js 框架，就是因为它可以设置背景图。对我而言，在一页片子上整页显示一幅图最能表达震撼的视觉效果，现有的 R Markdown 幻灯片框架都缺乏这个功能，不开森。当时我发现 remark.js 之后真的是激动地不要不要的，等了一个月才抽出空来把这个包写出来。
+]
+
+---
+
+# 火影术语
+
+简单介绍一下这个包里那些奇怪的术语的由来：
+
+- [写轮眼](http://naruto.wikia.com/wiki/Sharingan)（包名，已解释）
+
+- [月读](http://naruto.wikia.com/wiki/Moon_Reader)（我希望这个 R Markdown 格式 `moon_reader` 能将听众控制在幻象中）
+
+- [查克拉](http://naruto.wikia.com/wiki/Chakra)（月读的参数之一 `chakra`，意思是 remark.js 的路径，它是支撑幻灯片的核心动力）
+
+- [性质变化](http://naruto.wikia.com/wiki/Nature_Transformation)（月读的参数之一 `nature`，意思是通过设置选项改变查克拉的性质）
+
+- [无限月读](http://naruto.wikia.com/wiki/Infinite_Tsukuyomi)（函数 `infinite_moon_reader()` 开启一个服务器不断刷新更新后的幻灯片，RStudio 插件背后对应的就是这个函数）
+
+- [通灵术](http://naruto.wikia.com/wiki/Summoning_Technique)（`summon_remark()` 从网络上把 remark.js 通灵到本地）
+
+月读这个忍术有点邪恶，不过你就当不知道吧。
+
+---
+
+# 结印
+
+使用本包单手就可以结印，按键 `h` 或者 `?` 之后就可以看见所有结印手势，例如 `p` 进入演讲者模式（可看见写给自己的注释，比如提醒自己要讲的笑话），`c` 复制幻灯片到新窗口；演讲时可以在自己面前的屏幕上显示演讲者模式，把新窗口中正常的幻灯片拖到大屏幕投影上给观众看。
+
+.center[![](https://upload.wikimedia.org/wikipedia/commons/7/7e/Mudra-Naruto-KageBunshin.svg)]
+
+???
+
+嗯，我们来讲一个不容易看懂的冷笑话。
+
+![](https://img-9gag-fun.9cache.com/photo/aMGp7bM_700b_v2.jpg)
+
+---
+
+class: center, middle
+
+# 蟹蟹
+
+本幻灯片由 R 包 [**xaringan**](https://github.com/yihui/xaringan) 生成；
+
+查克拉来自于 [remark.js](https://remarkjs.com)、[**knitr**](http://yihui.org/knitr)、以及 [R Markdown](https://rmarkdown.rstudio.com)。

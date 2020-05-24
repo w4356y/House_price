@@ -1,0 +1,30 @@
+.red {
+  color: #FF0000;
+  font-size: 200% ;
+  font-family: 'Songti SC';
+}
+
+.title1 {
+  font-family:"Times New Roman",Georgia,Serif;
+  font-weight: bold;
+}
+
+.conclusion {
+  font-size:100%;
+  font-family:"Times New Roman";
+  color: blue;
+  font-weight: bold;
+}
+
+.sub {
+  font-size: 150% ;
+  font-family: 'Songti SC';
+}
+
+.table1 {
+  font-size: 60%;
+}
+
+.table2 {
+  font-size: 70%;
+}
