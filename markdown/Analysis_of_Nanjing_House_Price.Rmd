@@ -1,0 +1,74 @@
+---
+title: "Analysis_of_House_Price_of_Nanjing"
+author: "Weijiang"
+date: "2020/5/15"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("D:/HousePrice")
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(knitr)
+source("plot_func.R")
+```
+
+## R load_data
+
+```{r load, fig.width= 12, fig.height = 9}
+## Read data from extracted data from lianjia
+df_loupan = read_xlsx("nanjing_xinloupan_2020-05-18.xlsx") %>% select(-c(1)) %>% distinct()
+## Extract the min, max area and Total price
+df_loupan <- df_loupan %>% mutate(Total_Price = str_replace(Total_Price,"\\s","")) %>%  mutate(Area_small = str_extract(Area,"建面\\d*"), Area_big = str_extract(Area, "-\\d*"), T_price = str_extract(Total_Price,"\\d+\\.*\\d*万"), Unit_price = str_extract(Total_Price, "^\\d*元")) %>% mutate(Area_small = str_replace(Area_small, "建面",""), Area_big = str_replace(Area_big,"-",""), T_price = str_replace_all(T_price, c("万" = ""," " = "")), Unit_price = str_replace_all(Unit_price,c("元" ="", "\\s" = "")))
+## Get the house dietribution by district
+df_loupan$District %>% table(dnn = "District") %>% as.data.frame() %>% arrange(desc(Freq)) %>% kable(.,format = 'markdown')
+## Select the top 20 most appeared house name
+df_loupan$Title %>% table(dnn = "楼盘") %>% as.data.frame() %>% arrange(desc(Freq)) %>% head(., n = 20) %>% kable(.,format = 'markdown')
+## Count the min, max and median price/total of on-saling living house by district
+df_loupan %>% filter(!is.na(Unit_Price) & Status == "在售" & Type == "住宅" & Unit_Price != "价格待定") %>% group_by(District) %>% summarise(n = n_distinct(Title), median_price = median(as.numeric(Unit_price), na.rm = T), min_price = min(as.numeric(Unit_price), na.rm = T), max_price = max(as.numeric(Unit_price),na.rm = T), max_total = max(as.numeric(T_price), na.rm = T), min_total = min(as.numeric(T_price), na.rm = T), median_total = median(as.numeric(T_price), na.rm = T))  %>% arrange(median_price) %>% kable(.,format = 'markdown')
+## Count the number of street in different district.
+df_loupan %>% select(District, Street) %>% group_by(District) %>% dplyr::summarise(n_street = n_distinct(Street)) %>% arrange(desc(n_street))
+## The distribution of house type
+hist_pie(df_loupan$Type,scale = 0.7)
+## The distribution of house status
+hist_pie(df_loupan$Status, scale = 0.7)
+## The distribution of total price
+filter(df_loupan, !is.na(T_price)) %>% pull(T_price) %>% str_replace_all(.,"\\s","") %>%  as.numeric() %>% cut(., breaks = c(0,50,100,150,200,240,280,300, 9000))  %>% hist_pie(., scale = 0.6)
+## The distribution of unit price
+df_loupan$Unit_price[!is.na(df_loupan$Unit_price)] %>% as.numeric() %>% cut(., breaks = c(0,10000, 15000,20000, 25000,30000, 100000),na.rm = T) %>% hist_pie(.,scale = 0.5)
+
+```
+
+
+
+
+## R load shp file
+
+```{r load_shp, eval=FALSE}
+nj_loc <- sf::read_sf("9948457/南京市电子地图/县界_region.shp")
+nj_line <- sf::read_sf("9948457/南京市电子地图/省道_polyline.shp")
+tm_shape(nj_loc) + tm_polygons('NAME') + tm_shape(nj_line) + tm_lines(labels = "ID")  + tm_shape(nj_build) + tm_dots() + tm_shape(nj_water) + tm_polygons() 
+```
+
+## Ershoufang price
+```{r ershou}
+df_ershou = read_xlsx("nanjing_ershoufang_2020-05-18.xlsx") %>% select(-c(1)) %>% distinct()
+df_pos = read_xlsx("position_district.xlsx")
+df_ershou %>% mutate(price = str_extract(Unit_Price, "\\d+")) %>% group_by(Position2) %>% summarise(n = n_distinct(Title), median_price = median(as.numeric(price))) %>% left_join(df_pos, by = c("Position2" = "Location")) %>% arrange(District, median_price) 
+df_ershou %>% mutate(price = str_extract(Unit_Price, "\\d+")) %>% left_join(df_pos, by = c("Position2" = "Location")) %>%  group_by(District) %>% summarise(n = n_distinct(Title), median_price = median(as.numeric(price))) %>% arrange(median_price)  
+```
+
+## Ershoufang house in Jiangning district
+```{r jn_dis}
+df_jn = read_xlsx("nanjing_ershoufang_jiangning_2020-05-19.xlsx") %>% select(-c(1)) %>% 
+distinct()
+## relation of available count and median price
+df_jn %>% mutate(price = str_extract(Unit_Price, "\\d+")) %>% group_by(Position2) %>% summarise(n = n_distinct(Title), median_price = median(as.numeric(price))) %>% left_join(df_pos, by = c("Position2" = "Location")) %>% arrange(n, median_price)  %>% ggplot(aes(x = n, y = median_price, label = Position2)) + geom_point()  + ggrepel::geom_text_repel()+ theme_bw() + xlab("# of Available") + theme(axis.title = element_text(size= 16), axis.text = element_text(size= 13))
+
+
+```
