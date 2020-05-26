@@ -15,13 +15,6 @@
     <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
     <link href="libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
     <script src="libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
-    <link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
-    <script src="libs/leaflet-1.3.1/leaflet.js"></script>
-    <link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
-    <script src="libs/Proj4Leaflet-1.0.1/proj4-compressed.js"></script>
-    <script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
-    <link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
-    <script src="libs/leaflet-binding-2.0.3/leaflet.js"></script>
     <link rel="stylesheet" href="custom.css" type="text/css" />
     <link rel="stylesheet" href="zh-CN.css" type="text/css" />
   </head>
@@ -401,8 +394,8 @@ background-position: 93% 3%
 ### 区域分布
 #### 房源类型/状态分布
 .table2[
-<div id="htmlwidget-afb745d0a9dd57ec1c9a" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-afb745d0a9dd57ec1c9a">{"x":{"filter":"none","fillContainer":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"],["江宁","浦口","句容","栖霞","溧水","建邺","六合","雨花台","鼓楼","高淳","玄武","秦淮","来安县","和县","南谯区"],[171,133,80,76,67,59,53,50,47,39,27,22,8,4,4],[77,46,19,37,25,30,24,21,21,11,14,10,1,1,1],[87,80,56,35,37,24,28,26,22,27,13,12,6,3,3],[5,7,2,4,4,5,1,3,3,1,0,0,0,0,0],[2,0,3,0,1,0,0,0,1,0,0,0,1,0,0],[100,76,59,37,44,26,37,25,17,31,9,5,7,3,4],[11,13,2,10,5,6,3,8,12,1,5,4,0,0,0],[36,24,15,6,14,2,7,3,0,6,4,5,0,1,0],[10,9,1,13,3,12,4,10,10,0,5,2,0,0,0],[7,6,0,3,0,7,0,3,6,0,0,4,0,0,0]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>District<\/th>\n      <th>数量<\/th>\n      <th>售罄<\/th>\n      <th>在售<\/th>\n      <th>未开盘<\/th>\n      <th>下期待开<\/th>\n      <th>住宅<\/th>\n      <th>商业<\/th>\n      <th>别墅<\/th>\n      <th>写字楼<\/th>\n      <th>酒店式公寓<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":8,"columnDefs":[{"className":"dt-right","targets":[2,3,4,5,6,7,8,9,10,11]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[8,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-d98aa3663b8e99d0a9b0" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-d98aa3663b8e99d0a9b0">{"x":{"filter":"none","fillContainer":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"],["江宁","浦口","句容","栖霞","溧水","建邺","六合","雨花台","鼓楼","高淳","玄武","秦淮","来安县","和县","南谯区"],[171,133,80,76,67,59,53,50,47,39,27,22,8,4,4],[77,46,19,37,25,30,24,21,21,11,14,10,1,1,1],[87,80,56,35,37,24,28,26,22,27,13,12,6,3,3],[5,7,2,4,4,5,1,3,3,1,0,0,0,0,0],[2,0,3,0,1,0,0,0,1,0,0,0,1,0,0],[100,76,59,37,44,26,37,25,17,31,9,5,7,3,4],[11,13,2,10,5,6,3,8,12,1,5,4,0,0,0],[36,24,15,6,14,2,7,3,0,6,4,5,0,1,0],[10,9,1,13,3,12,4,10,10,0,5,2,0,0,0],[7,6,0,3,0,7,0,3,6,0,0,4,0,0,0]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>District<\/th>\n      <th>数量<\/th>\n      <th>售罄<\/th>\n      <th>在售<\/th>\n      <th>未开盘<\/th>\n      <th>下期待开<\/th>\n      <th>住宅<\/th>\n      <th>商业<\/th>\n      <th>别墅<\/th>\n      <th>写字楼<\/th>\n      <th>酒店式公寓<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":8,"columnDefs":[{"className":"dt-right","targets":[2,3,4,5,6,7,8,9,10,11]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[8,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 ]
 
 ---
@@ -623,61 +616,40 @@ background-position: 93% 3%
 
 ---
 
-# HTML 控件
+class: inverse, middle, center
 
-我没有仔细测试 [HTML 控件](https://htmlwidgets.org)，祝你好运。下一页上有两个例子，一个地图，一个表格，目测貌似可用。
-
-目前也不支持 Shiny 模式（即 `runtime: shiny`）。还是别把你的幻灯片搞辣么复杂吧。
+## 房价基本分析
 
 ---
-
-
-```r
-library(leaflet)
-leaflet() %&gt;% addTiles() %&gt;% setView(-93.65, 42.0285, zoom = 17)
-```
-
-<div id="htmlwidget-edec69f7bda48a14676b" style="width:100%;height:432px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-edec69f7bda48a14676b">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]}],"setView":[[42.0285,-93.65],17,[]]},"evals":[],"jsHooks":[]}</script>
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 房价分析
+#### 房源类型单价统计
+.center[
+![](Nanjing_files/figure-html/box_type-1.png)&lt;!-- --&gt;
+]
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 房价分析
+#### 房源状态单价统计
+.center[
+![](Nanjing_files/figure-html/box_status-1.png)&lt;!-- --&gt;
+]
 
 ---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 房价分析
+#### 房源状态单价统计
+.page_header[你好]
+.plot_pos[
+![](Nanjing_files/figure-html/box_district-1.png)&lt;!-- --&gt;
+]
 
-
-```r
-DT::datatable(
-  head(iris, 10),
-  fillContainer = FALSE, options = list(pageLength = 8)
-)
-```
-
-<div id="htmlwidget-c77b40881ff001c66720" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-c77b40881ff001c66720">{"x":{"filter":"none","fillContainer":false,"data":[["1","2","3","4","5","6","7","8","9","10"],[5.1,4.9,4.7,4.6,5,5.4,4.6,5,4.4,4.9],[3.5,3,3.2,3.1,3.6,3.9,3.4,3.4,2.9,3.1],[1.4,1.4,1.3,1.5,1.4,1.7,1.4,1.5,1.4,1.5],[0.2,0.2,0.2,0.2,0.2,0.4,0.3,0.2,0.2,0.1],["setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Sepal.Length<\/th>\n      <th>Sepal.Width<\/th>\n      <th>Petal.Length<\/th>\n      <th>Petal.Width<\/th>\n      <th>Species<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":8,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[8,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
-
----
-
-# 一些小技能
-
-- “Infinite Moon Reader”插件默认情况下会锁住你的 R 进程，有它没你，有你没它。你可以设置一个选项，让它一边儿凉快去：
-
-    ```r
-    options(servr.daemon = TRUE)
-    ```
-    
-    你可以把这个设置写在 `~/.Rprofile` 文件中，这样你将来所有 R 进程都不会被这个插件挡住去路。
-    
-    这事情背后的魔法在 [**servr**](https://github.com/yihui/servr) 包中。
-
---
-
-- 别忘了玩一下 `yolo` 选项，如：
-
-    ```yaml
-    output:
-      xaringan::moon_reader:
-        yolo: 3
-    ```
-
-    它会随机显示 Karl Broman 的照片；这里地方太小，写不下故事的来龙去脉。
 
 ---
 

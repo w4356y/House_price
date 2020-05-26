@@ -28,3 +28,19 @@
 .table2 {
   font-size: 70%;
 }
+
+.page_header {
+  position:absolute;
+  left: 20px;
+  top: 20px;
+  font-weight: bold;
+  font-size: 150%;
+  font-family: 'Songti SC';
+  text-shadow: 5px 5px 5px #FF0000;
+}
+
+.plot_pos {
+  position:absolute;
+  left:250px;
+  top:90px;
+}

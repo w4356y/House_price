@@ -210,53 +210,51 @@ df_loupan %>% filter(!is.na(T_price)) %>% mutate(T_price = as.numeric(str_replac
 
 ---
 
-# HTML 控件
+class: inverse, middle, center
 
-我没有仔细测试 [HTML 控件](https://htmlwidgets.org)，祝你好运。下一页上有两个例子，一个地图，一个表格，目测貌似可用。
-
-目前也不支持 Shiny 模式（即 `runtime: shiny`）。还是别把你的幻灯片搞辣么复杂吧。
+## 房价基本分析
 
 ---
-
-```{r out.width='100%', fig.height=6, eval=require('leaflet')}
-library(leaflet)
-leaflet() %>% addTiles() %>% setView(-93.65, 42.0285, zoom = 17)
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 房价分析
+#### 房源类型单价统计
+.center[
+```{r box_type, echo=FALSE, warning=FALSE, message=FALSE, fig.width = 7.5, fig.height=5}
+library(Hmisc)
+trellis.par.set("add.text", list(cex = 3))
+df_loupan %>%  filter(!is.na(Unit_price))  %>% mutate(Unit_price = as.numeric(Unit_price))  %>% filter(Unit_price > 10000) %>% bwplot(Type ~ as.numeric(Unit_price), data = ., panel = panel.bpplot, xlim =c(10000 ,80000) , xlab ='House Price', scale = list(cex = c(1.2,2)), cex.n = 1.2)
 ```
-
+]
 ---
-
-```{r eval=require('DT'), tidy=FALSE}
-DT::datatable(
-  head(iris, 10),
-  fillContainer = FALSE, options = list(pageLength = 8)
-)
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 房价分析
+#### 房源状态单价统计
+.center[
+```{r box_status, echo=FALSE, warning=FALSE, message=FALSE, fig.width = 7.5, fig.height=5}
+library(Hmisc)
+trellis.par.set("add.text", list(col = "red"))
+df_loupan %>%  filter(!is.na(Unit_price))  %>% mutate(Unit_price = as.numeric(Unit_price))  %>% filter(Unit_price > 10000) %>% bwplot(Status ~ as.numeric(Unit_price), data = ., panel = panel.bpplot, xlim =c(10000 ,80000) , xlab ='House Price', scale = list(cex = c(1.2,2)), cex.n = 1.2)
 ```
+]
 
 ---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+### 房价分析
+#### 房源状态单价统计
+.plot_pos[
+```{r box_district, echo=FALSE, warning=FALSE, message=FALSE, fig.width = 6, fig.height=7.5}
+library(Hmisc)
+trellis.par.set("add.text", list(cex = 3))
+df_loupan %>%  filter(!is.na(Unit_price))  %>% mutate(Unit_price = as.numeric(Unit_price))  %>% filter(Unit_price > 10000) %>% bwplot(District ~ as.numeric(Unit_price), data = ., panel = panel.bpplot, xlim =c(10000 ,80000) , xlab ='House Price', scale = list(cex = c(1.2,1)),box.ratio = 0.5, cex.n = 1.1)
+```
+]
 
-# 一些小技能
-
-- “Infinite Moon Reader”插件默认情况下会锁住你的 R 进程，有它没你，有你没它。你可以设置一个选项，让它一边儿凉快去：
-
-    ```r
-    options(servr.daemon = TRUE)
-    ```
-    
-    你可以把这个设置写在 `~/.Rprofile` 文件中，这样你将来所有 R 进程都不会被这个插件挡住去路。
-    
-    这事情背后的魔法在 [**servr**](https://github.com/yihui/servr) 包中。
-
---
-
-- 别忘了玩一下 `yolo` 选项，如：
-
-    ```yaml
-    output:
-      xaringan::moon_reader:
-        yolo: 3
-    ```
-
-    它会随机显示 Karl Broman 的照片；这里地方太小，写不下故事的来龙去脉。
 
 ---
 
