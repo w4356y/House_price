@@ -176,7 +176,7 @@ background-position: 93% 3%
 ### 区域分布
 #### 房源类型/状态分布
 .table2[
-```{r group_stat_render, echo=FALSE, warning=FALSE,eval=require('DT'), tidy=FALSE}
+```{r group_stat_render, echo=FALSE, warning=FALSE, eval=require('DT'), tidy=FALSE}
 d1 = df_loupan %>% group_by(District) %>% summarise(数量 = n(),售罄 = sum(Status == "售罄"), 在售 = sum(Status == "在售"),未开盘 = sum(Status == "未开盘"),下期待开 = sum(Status == "下期待开"), 住宅 = sum(Type == "住宅"), 商业 = sum(Type == "商业"), 别墅 = sum(Type == "别墅"), 写字楼 = sum(Type == "写字楼"), 酒店式公寓=  sum(Type == "酒店式公寓")) %>% arrange(desc(数量)) 
 DT::datatable(
   d1,
@@ -257,199 +257,100 @@ df_loupan %>%  filter(!is.na(Unit_price))  %>% mutate(Unit_price = as.numeric(Un
 
 
 ---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+.plot_pos[
+```{r box_district_total, echo=FALSE, warning=FALSE, message=FALSE, fig.width = 6, fig.height=7.5}
+df_loupan %>%  filter(!is.na(T_price))  %>% mutate(T_price = as.numeric(T_price))  %>% filter(T_price > 10 & T_price < 1000) %>% filter(Type == "住宅") %>% bwplot(District ~ as.numeric(T_price), data = ., panel = panel.bpplot, xlim =c(10 ,1000) , xlab ='House Price', scale = list(cex = c(1.2,1)),box.ratio = 0.5, cex.n = 1.1)
+```
+]
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+.center[
+```{r box_type_total, echo=FALSE, warning=FALSE, message=FALSE, fig.width = 6, fig.height=7.5}
+df_loupan %>%  filter(!is.na(T_price))  %>% mutate(T_price = as.numeric(T_price))  %>% filter(T_price > 10) %>% bwplot(Type ~ as.numeric(T_price), data = ., panel = panel.bpplot, xlim =c(10 ,3000) , xlab ='House Price', scale = list(cex = c(1.2,1)),box.ratio = 0.5, cex.n = 1.1)
+```
+]
 
-# 一些小技能
-
-- `nature` 下面的 `autoplay` 选项可以用来自动播放幻灯片，它的取值是毫秒，例如每 30 秒播放一张片子：
-
-    ```yaml
-    output:
-      xaringan::moon_reader:
-        nature:
-          autoplay: 30000
-    ```
-
---
-
-- `nature` 下面的 `countdown` 选项可以为每一页幻灯片添加一个（倒数）计时器，取值同样为毫秒，例如每一页片子都用 60 秒倒计时：
-
-    ```yaml
-    output:
-      xaringan::moon_reader:
-        nature:
-          countdown: 60000
-    ```
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+.center[
+```{r box_status_total, echo=FALSE, warning=FALSE, message=FALSE, fig.width = 6, fig.height=7.5}
+df_loupan %>%  filter(!is.na(T_price))  %>% mutate(T_price = as.numeric(T_price))  %>% filter(T_price > 10)  %>% filter(Type == "住宅")  %>% bwplot(Status ~ as.numeric(T_price), data = ., panel = panel.bpplot, xlim =c(10 ,3000) , xlab ='House Price', scale = list(cex = c(1.2,1)),box.ratio = 0.5, cex.n = 1.1)
+```
+]
 
 ---
 
-# 一些小技能
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+## 标签
+```{r tag, echo=FALSE}
+DT::datatable(
+  df_loupan$Tags %>% str_split(" ") %>% unlist() %>% table(dnn = "Tag") %>% as.data.frame() %>% arrange(desc(Freq)),
+  fillContainer = FALSE, options = list(pageLength = 8)
+)
 
-- 一页片子可以分割成一步步播放，参见[这个示例](https://slides.yihui.org/xaringan/incremental.html)。
 
-- 选项 `highlightLines: true` 可以让以 `*` 开头或者双重大括号 `{{ }}` 里面的代码被高亮出来；
+```
 
-    ```yaml
-    output:
-      xaringan::moon_reader:
-        nature:
-          highlightLines: true
-    ```
-
-    下一页我们举两个栗子。
 
 ---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+#### **标签分析**
+**地铁沿线**、*贴心物业*、**环线房**、**品牌房企**和*公交直达*为考虑最多标签！
+.plot_pos1[
+```{r tag_bwplot, echo=FALSE}
+tag_names = df_loupan$Tags %>% str_split(" ") %>% unlist() %>% table(dnn = "Tag") %>% as.data.frame() %>% arrange(desc(Freq)) %>% slice(1:14) %>% pull(Tag) %>% as.character()
+lapply(tag_names, function(x) filter(df_loupan, str_detect(Tags, x)) %>% filter(!is.na(Unit_price))  %>% mutate(Unit_price = as.numeric(Unit_price))  %>% filter(Unit_price > 10000) %>% select(District, Status, Type, Unit_price) %>% mutate(tag = x))  %>% bind_rows() %>% filter(Type == "住宅") %>% bwplot(tag  ~ Unit_price,data = ., panel = panel.bpplot, xlim =c(10000 ,50000) , xlab ='House Price', scale = list(cex = c(1.2,1)),box.ratio = 0.5, cex.n = 1.1) 
+```
+]
 
-# 一些小技能
 
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+#### **标签分析** - 江宁区
 .pull-left[
-以 `*` 开头的代码：
-
-    ```r
-    if (TRUE) {
-    ** message("敲黑板！划重点！")
-    }
-    ```
-输出：
-```r
-if (TRUE) {
-* message("敲黑板！划重点！")
-}
+## 售罄
+```{r tag_bwplot_saled, echo=FALSE}
+tag_names = df_loupan$Tags %>% str_split(" ") %>% unlist() %>% table(dnn = "Tag") %>% as.data.frame() %>% arrange(desc(Freq)) %>% slice(1:14) %>% pull(Tag) %>% as.character()
+lapply(tag_names, function(x) filter(df_loupan, str_detect(Tags, x)) %>% filter(!is.na(Unit_price))  %>% mutate(Unit_price = as.numeric(Unit_price))  %>% filter(Unit_price > 10000) %>% select(District, Status, Type, Unit_price) %>% mutate(tag = x))  %>% bind_rows() %>% filter(Type == "住宅" & Status == "售罄" & District == "江宁") %>% bwplot(tag  ~ Unit_price,data = ., panel = panel.bpplot, xlim =c(10000 ,50000) , xlab ='House Price', scale = list(cex = c(1.2,1)),box.ratio = 0.5, cex.n = 1.1) 
 ```
-
-因为它不是合法的 R 代码，所以不能作为 R 代码段来写，只能用三个反引号直接跟 r（就知道你没听懂）。
 ]
-
 .pull-right[
-用 `{{}}` 包裹的代码：
-
-````
-`r ''````{r tidy=FALSE}
-if (TRUE) {
-*{{ message("敲黑板！划重点！") }}
-}
+## 在售
+```{r tag_bwplot_saling, echo=FALSE}
+tag_names = df_loupan$Tags %>% str_split(" ") %>% unlist() %>% table(dnn = "Tag") %>% as.data.frame() %>% arrange(desc(Freq)) %>% slice(1:14) %>% pull(Tag) %>% as.character()
+lapply(tag_names, function(x) filter(df_loupan, str_detect(Tags, x)) %>% filter(!is.na(Unit_price))  %>% mutate(Unit_price = as.numeric(Unit_price))  %>% filter(Unit_price > 10000) %>% select(District, Status, Type, Unit_price) %>% mutate(tag = x))  %>% bind_rows() %>% filter(Type == "住宅" & Status == "在售" & District == "江宁") %>% bwplot(tag  ~ Unit_price,data = ., panel = panel.bpplot, xlim =c(10000 ,50000) , xlab ='House Price', scale = list(cex = c(1.2,1)),box.ratio = 0.5, cex.n = 1.1) 
 ```
-````
-
-输出：
-```{r tidy=FALSE}
-if (TRUE) {
-{{ message("敲黑板！划重点！") }}
-}
-```
-
-这是合法的 R 代码，所以你可以真的运行它。
 ]
 
----
-
-# CSS（层叠样式表）
-
-`xaringan::moon_reader` 的所有选项中，最强的魔法在 `css` 选项上，它是自定义幻灯片样式的关键。如果你不懂 CSS 的话，我强烈建议你学习一些 CSS 的基础知识。
-
-对中文幻灯片，**xaringan** 包中的默认 CSS 文件在[这里](https://github.com/yihui/xaringan/blob/master/inst/rmarkdown/templates/xaringan_zh-CN/skeleton/zh-CN.css)，你可以在它的基础上改装，也可以直接定义全新的 CSS 样式。
 
 ---
-
-# CSS（层叠样式表）
-
-举个栗子。比如你想将一段文字的颜色改为红色，你可以定义一个 CSS 类，如：
-
-```css
-.red {
-  color: #FF0000;
-}
-```
-
-我们把这段代码保存在一个 CSS 文件中，如 `extra.css`（假设它跟你的 R Markdown 文件在同一文件夹下），然后通过 `css` 选项将它引入：
-
-```yaml
-output:
-  xaringan::moon_reader:
-    css: ["zh-CN.css", "extra.css"]
-```
-
-其中 `zh-CN.css` 是本包已经为你提供的 CSS 样式文件（你可选择用或不用）。
-
-现在在 R Markdown 中你就可以用 `.red[]` 来标记一段文字为红色，如 `.red[我是红色的]`。
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
 
 ---
-
-# CSS（层叠样式表）
-
-如果想在墙内用 Google 字体的话，可以试试这个 [google-webfonts-helper](https://google-webfonts-helper.herokuapp.com/fonts) 应用，它会把字体下载到本地并生成相应的 CSS 文件。也可以考虑 360 的 [CDN 服务](http://libs.useso.com)。
-
-可惜中文不像英文，没有很新奇酷炫的网络字体，只能靠你电脑上的字体硬撑了。
-
----
-class: inverse, middle, center
-background-image: url(https://upload.wikimedia.org/wikipedia/commons/3/39/Naruto_Shiki_Fujin.svg)
-background-size: contain
-
-# 火影忍者
-
----
-background-image: url(https://upload.wikimedia.org/wikipedia/commons/b/be/Sharingan_triple.svg)
-background-size: 100px
-background-position: 90% 8%
-
-# 写轮眼
-
-**xaringan** 这个名字来源于火影中的写轮眼 **Sharingan**。<sup>1</sup> 写轮眼有两大能力：
-
-- 洞察眼
-
-- 催眠眼
-
-其实做演示就是将自己的洞见传递给听众；好的演讲通常有催眠效果，因为它可以深度震撼人心。<sup>2,3</sup>
-
-.footnote[
-[1] 我把 Sh 换成 X 了，因为几乎没有一个歪果仁读对过我的姓。当然主要原因还是 xaringan 搜索起来更容易被搜到。
-
-[2] 糟糕的演讲也可以催眠听众，但显然这两种催眠完全不同。
-
-[3] 我之所以选择了 remark.js 框架，就是因为它可以设置背景图。对我而言，在一页片子上整页显示一幅图最能表达震撼的视觉效果，现有的 R Markdown 幻灯片框架都缺乏这个功能，不开森。当时我发现 remark.js 之后真的是激动地不要不要的，等了一个月才抽出空来把这个包写出来。
-]
-
----
-
-# 火影术语
-
-简单介绍一下这个包里那些奇怪的术语的由来：
-
-- [写轮眼](http://naruto.wikia.com/wiki/Sharingan)（包名，已解释）
-
-- [月读](http://naruto.wikia.com/wiki/Moon_Reader)（我希望这个 R Markdown 格式 `moon_reader` 能将听众控制在幻象中）
-
-- [查克拉](http://naruto.wikia.com/wiki/Chakra)（月读的参数之一 `chakra`，意思是 remark.js 的路径，它是支撑幻灯片的核心动力）
-
-- [性质变化](http://naruto.wikia.com/wiki/Nature_Transformation)（月读的参数之一 `nature`，意思是通过设置选项改变查克拉的性质）
-
-- [无限月读](http://naruto.wikia.com/wiki/Infinite_Tsukuyomi)（函数 `infinite_moon_reader()` 开启一个服务器不断刷新更新后的幻灯片，RStudio 插件背后对应的就是这个函数）
-
-- [通灵术](http://naruto.wikia.com/wiki/Summoning_Technique)（`summon_remark()` 从网络上把 remark.js 通灵到本地）
-
-月读这个忍术有点邪恶，不过你就当不知道吧。
-
----
-
-# 结印
-
-使用本包单手就可以结印，按键 `h` 或者 `?` 之后就可以看见所有结印手势，例如 `p` 进入演讲者模式（可看见写给自己的注释，比如提醒自己要讲的笑话），`c` 复制幻灯片到新窗口；演讲时可以在自己面前的屏幕上显示演讲者模式，把新窗口中正常的幻灯片拖到大屏幕投影上给观众看。
-
-.center[![](https://upload.wikimedia.org/wikipedia/commons/7/7e/Mudra-Naruto-KageBunshin.svg)]
-
-???
-
-嗯，我们来讲一个不容易看懂的冷笑话。
-
-![](https://img-9gag-fun.9cache.com/photo/aMGp7bM_700b_v2.jpg)
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+ 
 
 ---
 
 class: center, middle
 
-# 蟹蟹
+## **谢谢老板!**
 
-本幻灯片由 R 包 [**xaringan**](https://github.com/yihui/xaringan) 生成；
-
-查克拉来自于 [remark.js](https://remarkjs.com)、[**knitr**](http://yihui.org/knitr)、以及 [R Markdown](https://rmarkdown.rstudio.com)。
+该项目所有资料记录在[**github**](https://github.com/w4356y/House_price)
