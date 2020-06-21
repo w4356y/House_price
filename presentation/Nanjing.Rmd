@@ -49,20 +49,21 @@ class: left, top
 
 ```{r set, include=FALSE, warning = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-setwd("D:/HousePrice")
+#setwd("D:/HousePrice")
 library(readxl)
 library(dplyr)
 library(ggplot2)
 library(stringr)
 library(knitr)
 library(kableExtra)
-source("plot_func.R")
+source("../R/plot_func.R")
 print("ok")
+Sys.setlocale(category = "LC_ALL", locale = "chs")
 ```
 ```{r load, message=FALSE, warning = FALSE}
-setwd("D:/HousePrice")
+#setwd("D:/HousePrice")
 ## Read data from extracted data from lianjia
-df_loupan = read_xlsx("nanjing_xinloupan_2020-05-18.xlsx") %>% select(-c(1)) %>% distinct()
+df_loupan = read_xlsx("../data/nanjing_xinloupan_2020-05-18.xlsx") %>% select(-c(1)) %>% distinct()
 ## Extract the min, max area and Total price
 df_loupan <- df_loupan %>% mutate(Total_Price = str_replace(Total_Price,"\\s","")) %>%  mutate(Area_small = str_extract(Area,"建面\\d*"), Area_big = str_extract(Area, "-\\d*"), T_price = str_extract(Total_Price,"\\d+\\.*\\d*万"), Unit_price = str_extract(Total_Price, "^\\d*元")) %>% mutate(Area_small = str_replace(Area_small, "建面",""), Area_big = str_replace(Area_big,"-",""), T_price = str_replace_all(T_price, c("万" = ""," " = "")), Unit_price = str_replace_all(Unit_price,c("元" ="", "\\s" = "")))
 ## Get the house dietribution by district
@@ -141,7 +142,7 @@ background-position: 93% 3%
 #### 房源分布
 - 房源区域分布
 .center[
-```{r district_stat1, echo=FALSE, fig.width= 7.5, fig.height=5, warning=FALSE}
+```{r district_stat1, echo=FALSE, fig.width= 7.5, fig.height=5, warning=FALSE,message=FALSE}
 ## Get the house dietribution by district
 df_loupan$District %>% table(dnn = "District") %>% as.data.frame() %>% arrange(desc(Freq)) %>% t()  %>% as.data.frame() %>% kable(.,format = 'markdown', col.names = NULL)
 ```
@@ -151,7 +152,8 @@ df_loupan$District %>% table(dnn = "District") %>% as.data.frame() %>% arrange(d
 
 - 街道区域分布
 .center[
-```{r  street_stat, echo=FALSE, fig.width= 7.5, fig.height=5, warning=FALSE}
+```{r  street_stat, echo=FALSE, fig.width= 7.5, fig.height=5, warning=FALSE, message=FALSE}
+
 ## Count the number of street in different district.
 df_loupan %>% select(District, Street) %>% group_by(District) %>% dplyr::summarise(n_street = n_distinct(Street)) %>% arrange(desc(n_street)) %>% t() %>% as.data.frame() %>% kable(.,format = 'markdown', col.names = NULL)
 ```
@@ -164,8 +166,8 @@ background-position: 93% 3%
 ### 区域分布
 #### 房源类型/状态分布
 .table1[
-```{r group_stat, echo=FALSE, warning=FALSE}
-df_loupan %>% group_by(District) %>% summarise(数量 = n(),售罄 = sum(Status == "售罄"), 在售 = sum(Status == "在售"),未开盘 = sum(Status == "未开盘"),下期待开 = sum(Status == "下期待开"), 住宅 = sum(Type == "住宅"), 商业 = sum(Type == "商业"), 别墅 = sum(Type == "别墅"), 写字楼 = sum(Type == "写字楼"), 酒店式公寓=  sum(Type == "酒店式公寓")) %>% arrange(desc(数量))  %>%  kable(.,format = 'html',row.names = FALSE, align = "c", longtable = TRUE) %>%  kable_styling(full_width = T, font_size = 12) %>% add_header_above(header = c(" " = 2, "状态" = 4, "类型" = 5),font_size = 15 ,bold = T, italic = F, color = "green")
+```{r group_stat, echo=FALSE, warning=FALSE, message=FALSE}
+df_loupan %>% group_by(District) %>% summarise(数量 = n_distinct(Status),售罄 = sum(Status == "售罄"), 在售 = sum(Status == "在售"),未开盘 = sum(Status == "未开盘"),下期待开 = sum(Status == "下期待开"), 住宅 = sum(Type == "住宅"), 商业 = sum(Type == "商业"), 别墅 = sum(Type == "别墅"), 写字楼 = sum(Type == "写字楼"), 酒店式公寓=  sum(Type == "酒店式公寓")) %>% arrange(desc(数量)) %>% kable(.,format = 'html',row.names = FALSE, align = "c", longtable = TRUE) %>% kable_styling(full_width = T, font_size = 12) %>% add_header_above(header = c(" " = 2, "状态" = 4, "类型" = 5),font_size = 15 ,bold = T, italic = F, color = "green")
 ```
 ]
 

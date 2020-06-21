@@ -3,26 +3,33 @@ title: "Analysis_of_House_Price_of_Nanjing"
 author: "Weijiang"
 date: "2020/5/15"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=T}
 knitr::opts_chunk$set(echo = TRUE)
-setwd("D:/HousePrice")
+#setwd("..")
 library(readxl)
 library(dplyr)
 library(ggplot2)
 library(stringr)
 library(knitr)
-source("plot_func.R")
+source("../R/plot_func.R")
+Sys.getlocale()
+#str <- "abc123-def"
+#options(encoding="UTF-8")
+library(evaluate)
+a = "十四"
+a
+Sys.setlocale(category = "LC_ALL", locale = "chs")
 ```
 
 ## R load_data
 
 ```{r load, fig.width= 12, fig.height = 9}
 ## Read data from extracted data from lianjia
-df_loupan = read_xlsx("nanjing_xinloupan_2020-05-18.xlsx") %>% select(-c(1)) %>% distinct()
+df_loupan = read_xlsx("../data/nanjing_xinloupan_2020-05-18.xlsx") %>% select(-c(1)) %>% distinct()
 ## Extract the min, max area and Total price
 df_loupan <- df_loupan %>% mutate(Total_Price = str_replace(Total_Price,"\\s","")) %>%  mutate(Area_small = str_extract(Area,"建面\\d*"), Area_big = str_extract(Area, "-\\d*"), T_price = str_extract(Total_Price,"\\d+\\.*\\d*万"), Unit_price = str_extract(Total_Price, "^\\d*元")) %>% mutate(Area_small = str_replace(Area_small, "建面",""), Area_big = str_replace(Area_big,"-",""), T_price = str_replace_all(T_price, c("万" = ""," " = "")), Unit_price = str_replace_all(Unit_price,c("元" ="", "\\s" = "")))
 ## Get the house dietribution by district
@@ -44,31 +51,11 @@ df_loupan$Unit_price[!is.na(df_loupan$Unit_price)] %>% as.numeric() %>% cut(., b
 
 ```
 
-
-
-
-## R load shp file
-
-```{r load_shp, eval=FALSE}
-nj_loc <- sf::read_sf("9948457/南京市电子地图/县界_region.shp")
-nj_line <- sf::read_sf("9948457/南京市电子地图/省道_polyline.shp")
-tm_shape(nj_loc) + tm_polygons('NAME') + tm_shape(nj_line) + tm_lines(labels = "ID")  + tm_shape(nj_build) + tm_dots() + tm_shape(nj_water) + tm_polygons() 
-```
-
 ## Ershoufang price
-```{r ershou}
-df_ershou = read_xlsx("nanjing_ershoufang_2020-05-18.xlsx") %>% select(-c(1)) %>% distinct()
+```{r ershou, eval=FALSE}
+df_ershou = read_xlsx("../data/nanjing_ershoufang_2020-05-14.xlsx") %>% select(-c(1)) %>% distinct()
 df_pos = read_xlsx("position_district.xlsx")
-df_ershou %>% mutate(price = str_extract(Unit_Price, "\\d+")) %>% group_by(Position2) %>% summarise(n = n_distinct(Title), median_price = median(as.numeric(price))) %>% left_join(df_pos, by = c("Position2" = "Location")) %>% arrange(District, median_price) 
+df_ershou %>% mutate(price = str_extract(Unit_Price, "\\d+")) %>% group_by(Position2) %>% summarise(数量 = n_distinct(Title), median_price = median(as.numeric(price))) %>% left_join(df_pos, by = c("Position2" = "Location")) %>% arrange(District, median_price) 
 df_ershou %>% mutate(price = str_extract(Unit_Price, "\\d+")) %>% left_join(df_pos, by = c("Position2" = "Location")) %>%  group_by(District) %>% summarise(n = n_distinct(Title), median_price = median(as.numeric(price))) %>% arrange(median_price)  
 ```
-
-## Ershoufang house in Jiangning district
-```{r jn_dis}
-df_jn = read_xlsx("nanjing_ershoufang_jiangning_2020-05-19.xlsx") %>% select(-c(1)) %>% 
-distinct()
-## relation of available count and median price
-df_jn %>% mutate(price = str_extract(Unit_Price, "\\d+")) %>% group_by(Position2) %>% summarise(n = n_distinct(Title), median_price = median(as.numeric(price))) %>% left_join(df_pos, by = c("Position2" = "Location")) %>% arrange(n, median_price)  %>% ggplot(aes(x = n, y = median_price, label = Position2)) + geom_point()  + ggrepel::geom_text_repel()+ theme_bw() + xlab("# of Available") + theme(axis.title = element_text(size= 16), axis.text = element_text(size= 13))
-
-
-```
+ 
