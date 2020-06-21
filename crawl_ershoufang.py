@@ -81,7 +81,7 @@ def l_par_html(url):
 
 if __name__ == "__main__":
     file = get_outFile(city="nanjing", type="ershoufang_jiangning")
-    dir = "d:/HousePrice"
+    dir = "D:/Users/jiangwei1/Documents/R/House_price/data"
     print(file)
     for page in pages:
         a = l_par_html(page)

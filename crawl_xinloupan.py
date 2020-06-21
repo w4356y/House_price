@@ -98,7 +98,7 @@ def l_par_html(url):
 
 if __name__ == "__main__":
     file = get_outFile(city="nanjing", type="xinloupan")
-    dir = "d:/HousePrice"
+    dir = "D:/Users/jiangwei1/Documents/R/House_price/data"
     print(file)
     n_page = get_maxPage(base_url)
     pages = ['https://nj.fang.lianjia.com/loupan/pg{}/'.format(x) for x in range(1, (n_page + 1))]
