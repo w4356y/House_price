@@ -1,5 +1,9 @@
-#!/usr/bin/env python3
-
+# -*- coding: utf-8 -*-
+# @Time    : 6/21/2020 2:55 PM
+# @Author  : Wei Jiang
+# @FileName: anjuke_test.py
+# @Software: PyCharm
+# @Github  : https://github.com/w4356y/House_price.git
 import time
 import requests
 import random

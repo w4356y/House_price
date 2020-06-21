@@ -1,5 +1,10 @@
-#!/usr/bin/env python3
-# coding=utf-8
+# -*- coding: utf-8 -*-
+# @Time    : 6/21/2020 2:55 PM
+# @Author  : Wei Jiang
+# @FileName: crawl_xinloupan.py
+# @Software: PyCharm
+# @Github  : https://github.com/w4356y/House_price.git
+
 from bs4 import BeautifulSoup
 import re
 import requests
@@ -14,7 +19,6 @@ from datetime import date
 @time="2020-05-10"
 @author="Wei Jiang"
 '''
-
 ###########################################################
 # 进行网络请求的浏览器头部
 headers = {
