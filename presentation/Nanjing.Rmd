@@ -1,7 +1,7 @@
 ---
 background-image: url(http://img.univs.cn/webfile/event/279/4457082/272F7EF0-38F3-11E4-A154-F15F2C3DF0D0/1410358107229_4457082.jpg)
 title: "南京房价调研"
-subtitle: "新房"
+subtitle: "新房 + 二手房"
 author: "江伟"
 institute: ""
 date: "2020/05/21"
@@ -13,6 +13,11 @@ output:
       highlightStyle: github
       highlightLines: true
       countIncrementalSlides: false
+---
+class: inverse, middle, center
+
+### 新楼盘
+
 ---
 background-image: url(http://img.univs.cn/webfile/event/279/4457082/272F7EF0-38F3-11E4-A154-F15F2C3DF0D0/1410358107229_4457082.jpg)
 
@@ -47,7 +52,7 @@ class: left, top
 ### 总体分布
 #### 房源区域分布
 
-```{r set, include=FALSE, warning = FALSE}
+```{r set, include=FALSE, warning = FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 #setwd("D:/HousePrice")
 library(readxl)
@@ -57,13 +62,11 @@ library(stringr)
 library(knitr)
 library(kableExtra)
 source("../R/plot_func.R")
-print("ok")
 Sys.setlocale(category = "LC_ALL", locale = "chs")
 ```
 ```{r load, message=FALSE, warning = FALSE}
-#setwd("D:/HousePrice")
 ## Read data from extracted data from lianjia
-df_loupan = read_xlsx("../data/nanjing_xinloupan_2020-05-18.xlsx") %>% select(-c(1)) %>% distinct()
+df_loupan = read_xlsx("../data/nanjing_xinloupan_2020-07-02.xlsx") %>% select(-c(1)) %>% distinct()
 ## Extract the min, max area and Total price
 df_loupan <- df_loupan %>% mutate(Total_Price = str_replace(Total_Price,"\\s","")) %>%  mutate(Area_small = str_extract(Area,"建面\\d*"), Area_big = str_extract(Area, "-\\d*"), T_price = str_extract(Total_Price,"\\d+\\.*\\d*万"), Unit_price = str_extract(Total_Price, "^\\d*元")) %>% mutate(Area_small = str_replace(Area_small, "建面",""), Area_big = str_replace(Area_big,"-",""), T_price = str_replace_all(T_price, c("万" = ""," " = "")), Unit_price = str_replace_all(Unit_price,c("元" ="", "\\s" = "")))
 ## Get the house dietribution by district
@@ -84,7 +87,7 @@ background-position: 93% 3%
 
 - .conclusion[住宅在新房源中占比超过50%；]
 .center[
-```{r district_stat, echo=FALSE, fig.width= 7.5, fig.height=5}
+```{r district_stat, echo=FALSE, fig.width= 7.5, fig.height=5, message=FALSE}
 ## The distribution of house type
 hist_pie(df_loupan$Type,scale = 0.7)
 ```
@@ -142,7 +145,7 @@ background-position: 93% 3%
 #### 房源分布
 - 房源区域分布
 .center[
-```{r district_stat1, echo=FALSE, fig.width= 7.5, fig.height=5, warning=FALSE,message=FALSE}
+```{r district_stat1, echo=FALSE, fig.width= 7.5, fig.height=5, warning=FALSE, message=FALSE}
 ## Get the house dietribution by district
 df_loupan$District %>% table(dnn = "District") %>% as.data.frame() %>% arrange(desc(Freq)) %>% t()  %>% as.data.frame() %>% kable(.,format = 'markdown', col.names = NULL)
 ```
@@ -153,7 +156,6 @@ df_loupan$District %>% table(dnn = "District") %>% as.data.frame() %>% arrange(d
 - 街道区域分布
 .center[
 ```{r  street_stat, echo=FALSE, fig.width= 7.5, fig.height=5, warning=FALSE, message=FALSE}
-
 ## Count the number of street in different district.
 df_loupan %>% select(District, Street) %>% group_by(District) %>% dplyr::summarise(n_street = n_distinct(Street)) %>% arrange(desc(n_street)) %>% t() %>% as.data.frame() %>% kable(.,format = 'markdown', col.names = NULL)
 ```
@@ -167,7 +169,7 @@ background-position: 93% 3%
 #### 房源类型/状态分布
 .table1[
 ```{r group_stat, echo=FALSE, warning=FALSE, message=FALSE}
-df_loupan %>% group_by(District) %>% summarise(数量 = n_distinct(Status),售罄 = sum(Status == "售罄"), 在售 = sum(Status == "在售"),未开盘 = sum(Status == "未开盘"),下期待开 = sum(Status == "下期待开"), 住宅 = sum(Type == "住宅"), 商业 = sum(Type == "商业"), 别墅 = sum(Type == "别墅"), 写字楼 = sum(Type == "写字楼"), 酒店式公寓=  sum(Type == "酒店式公寓")) %>% arrange(desc(数量)) %>% kable(.,format = 'html',row.names = FALSE, align = "c", longtable = TRUE) %>% kable_styling(full_width = T, font_size = 12) %>% add_header_above(header = c(" " = 2, "状态" = 4, "类型" = 5),font_size = 15 ,bold = T, italic = F, color = "green")
+df_loupan %>% group_by(District) %>% summarise(数量 = n(),售罄 = sum(Status == "售罄"), 在售 = sum(Status == "在售"),未开盘 = sum(Status == "未开盘"),下期待开 = sum(Status == "下期待开"), 住宅 = sum(Type == "住宅"), 商业 = sum(Type == "商业"), 别墅 = sum(Type == "别墅"), 写字楼 = sum(Type == "写字楼"), 酒店式公寓=  sum(Type == "酒店式公寓")) %>% arrange(desc(数量))  %>%  kable(.,format = 'html',row.names = FALSE, align = "c", longtable = TRUE) %>%  kable_styling(full_width = T, font_size = 12) %>% add_header_above(header = c(" " = 2, "状态" = 4, "类型" = 5),font_size = 15 ,bold = T, italic = F, color = "green")
 ```
 ]
 
@@ -178,7 +180,7 @@ background-position: 93% 3%
 ### 区域分布
 #### 房源类型/状态分布
 .table2[
-```{r group_stat_render, echo=FALSE, warning=FALSE, eval=require('DT'), tidy=FALSE}
+```{r group_stat_render, echo=FALSE, warning=FALSE, eval=require('DT'), tidy=FALSE, message=FALSE}
 d1 = df_loupan %>% group_by(District) %>% summarise(数量 = n(),售罄 = sum(Status == "售罄"), 在售 = sum(Status == "在售"),未开盘 = sum(Status == "未开盘"),下期待开 = sum(Status == "下期待开"), 住宅 = sum(Type == "住宅"), 商业 = sum(Type == "商业"), 别墅 = sum(Type == "别墅"), 写字楼 = sum(Type == "写字楼"), 酒店式公寓=  sum(Type == "酒店式公寓")) %>% arrange(desc(数量)) 
 DT::datatable(
   d1,
@@ -194,7 +196,7 @@ background-position: 93% 3%
 ### 区域分布
 #### 区域单价分段统计
 .table1[
-```{r unit_price_type, echo=FALSE, warning=FALSE}
+```{r unit_price_type, echo=FALSE, warning=FALSE, message=FALSE}
 df_loupan %>%  filter(!is.na(Unit_price))  %>% mutate(Unit_price = as.numeric(Unit_price))  %>% filter(Unit_price > 10000) %>% mutate(unit_price_type = cut(Unit_price, breaks = c(9999, 15000,20000, 22500,25000,27500,30000, 100000),na.rm = T, labels = c("1.0~1.5w","1.5~2.0w","2.0~2.25w","2.25~2.5w","2.5~2.75w","2.75~3.0w","3.0w+"))) %>% group_by(District) %>% summarise(数量 = n(), `1.0~1.5w` = sum(unit_price_type == "1.0~1.5w"), `1.5~2.0w` = sum(unit_price_type == "1.5~2.0w"), `2.0~2.25w` = sum(unit_price_type == "2.0~2.25w"),`2.25~2.5w` = sum(unit_price_type == "2.25~2.5w"), `2.5~2.75w` = sum(unit_price_type == "2.5~2.75w"), `2.5~2.75w` = sum(unit_price_type == "2.5~2.75w"), `2.75~3.0w` = sum(unit_price_type == "2.75~3.0w"), `3.0w+` = sum(unit_price_type == "3.0w+"))  %>% arrange(desc(数量)) %>% kable(.,format = 'markdown',row.names = FALSE, align = "c", longtable = TRUE) 
 ```
 ]
@@ -205,7 +207,7 @@ background-position: 93% 3%
 ### 区域分布
 #### 区域总价分段统计
 .table1[
-```{r total_price_type, echo=FALSE, warning=FALSE}
+```{r total_price_type, echo=FALSE, warning=FALSE, message=FALSE}
 df_loupan %>% filter(!is.na(T_price)) %>% mutate(T_price = as.numeric(str_replace_all(T_price, "\\s","")))  %>% mutate(T_price_type = cut(T_price, breaks = c(39,100,150, 200, 230,270, 300, 9000), labels = c("39~100w","100~150w","150~200w","200~230w","230~270w","270~300w","300w+"))) %>% group_by(District) %>% summarise(数量 = n(), `39~100w` = sum(T_price_type == "39~100w"), `100~150w` = sum(T_price_type == "100~150w"), `150~200w` = sum(T_price_type == "150~200w"),`200~230w` = sum(T_price_type == "200~230w"), `230~270w` = sum(T_price_type == "230~270w"),`270~300w` = sum(T_price_type == "270~300w"), `300w+` = sum(T_price_type == "300w+"))  %>% arrange(desc(数量)) %>% kable(.,format = 'html',row.names = FALSE, align = "c", longtable = TRUE) 
 ```
 ]
@@ -347,12 +349,192 @@ background-position: 93% 3%
 background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
 background-size: 150px
 background-position: 93% 3%
- 
+
+class: inverse, middle, center
+
+### 二手房（江宁区） 
+
+???
+
+Test
 
 ---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+.plot_pos1[
+```{r ershou_bwplot, echo=FALSE, message=FALSE}
+df_ershou = read_xlsx("../data/nanjing_ershoufang_jiangning_2020-07-02.xlsx") %>% select(-c(1)) %>% distinct()
+df_ershou %>% mutate(price = as.numeric(str_extract(Unit_Price,"\\d+"))) %>%  bwplot(Position2 ~ price, data = ., panel = panel.bpplot, xlab ='House Price', scale = list(cex = c(1.2,1)),box.ratio = 0.5, cex.n = 1.1, xlim = c(10000,50000))
+```
+]
 
+???
+
+二手房房价按街道分布图；
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+## 房屋配置分布
+
+```{r size_distrib, echo = FALSE}
+df_ershou %>%  mutate(size = str_extract(HouseInfo,"\\d室\\d厅")) %>% pull(size) %>% table(dnn = "Configuration") %>% as.data.frame() %>% arrange(desc(Freq)) %>% filter(Freq >10) %>% kable(.,format = 'markdown',row.names = FALSE, align = "c", longtable = TRUE, padding = 3) 
+```
+
+???
+二手房房屋大小分布
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+## 二手房大小分布
+
+.pull-left[
+```{r area_distrib1, echo = FALSE}
+df_ershou %>%  mutate(area = str_extract(HouseInfo,"\\d+\\.*\\d+平米")) %>% mutate(area = as.numeric(str_replace(area,"平米",""))) %>% pull(area) %>% hist(., breaks = 30)
+```
+]
+.pull-right[
+```{r area_distrib2, echo = FALSE}
+df_ershou %>%  mutate(area = str_extract(HouseInfo,"\\d+\\.*\\d+平米")) %>% mutate(area = as.numeric(str_replace(area,"平米",""))) %>% mutate(area_type = cut(area, breaks = c(20,80,90,100,120,150,180))) %>% pull(area_type) %>% hist_pie(.,scale = 0.6)
+```
+]
+
+???
+房屋大小分布
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+## Unit_Price ~ Area
+.center[
+```{r area_price, echo = FALSE, fig.width=7.5, fig.height=6, message=FALSE, warning=FALSE}
+d = df_ershou %>%  mutate(area = str_extract(HouseInfo,"\\d+\\.*\\d+平米")) %>% mutate(area = as.numeric(str_replace(area,"平米","")), price = as.numeric(str_extract(Unit_Price,"\\d+"))) 
+with(d, ggfreqScatter(area, price/1000, bins =c(50,50) , cuts = c(5,10,15,20,25,30,35), fcolor = viridis::viridis(6)) + theme_bw() + xlab("Area(/平米)") + ylab("Unit_Price(/K RMB)") + theme(axis.title = element_text(size= 15), axis.text = element_text(size= 12)))
+```
+]
+
+???
+房价与房屋面积关系
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+## 房屋朝向分布
+.pull-left[
+```{r direction_distrib1, echo = FALSE, message=FALSE, warning=FALSE}
+library(tidyr)
+df_ershou %>% separate(HouseInfo, c("Size","Area","direction","decoration","height","year","building_type"), sep = "\\|", remove = FALSE) %>% pull(direction) %>% table() %>% as.data.frame() %>% arrange(desc(Freq)) %>% filter(Freq >10) %>% kable(.,format = 'markdown',row.names = FALSE, align = "c", longtable = TRUE)  
+```
+]
+.pull-right[
+```{r direction_distrib2, echo = FALSE, message=FALSE, warning =FALSE}
+direction_list = df_ershou %>% separate(HouseInfo, c("Size","Area","direction","decoration","height","year","building_type"), sep = "\\|", remove = FALSE) %>% pull(direction) %>% table(dnn = "name") %>% as.data.frame() %>% arrange(desc(Freq)) %>% filter(Freq >20) %>% pull(name) %>% as.character()
+df_ershou %>% separate(HouseInfo, c("Size","Area","direction","decoration","height","year","building_type"), sep = "\\|", remove = FALSE) %>% filter(direction %in% direction_list) %>% mutate(price = as.numeric(str_extract(Unit_Price,"\\d+"))) %>% bwplot(direction ~ price, data = ., panel = panel.bpplot, scale = list(cex = c(1.2,1)),box.ratio = 0.5, cex.n = 1.1)
+```
+]
+- !超过87%的房源朝向为南或南北
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+## 装修
+.pull-left[
+```{r decoration_distrib1, echo = FALSE, message=FALSE, warning=FALSE}
+df_ershou %>% separate(HouseInfo, c("Size","Area","direction","decoration","height","year","building_type"), sep = "\\|", remove = FALSE) %>% pull(decoration)  %>% hist_pie(.,scale = 0.6)
+```
+]
+.pull-right[
+```{r decoration_distrib2, echo = FALSE, message=FALSE, warning=FALSE}
+df_ershou %>% separate(HouseInfo, c("Size","Area","direction","decoration","height","year","building_type"), sep = "\\|", remove = FALSE) %>% filter(direction %in% direction_list) %>% mutate(price = as.numeric(str_extract(Unit_Price,"\\d+"))) %>% bwplot(decoration ~ price, data = ., panel = panel.bpplot, scale = list(cex = c(1.2,1)),box.ratio = 0.5, cex.n = 1.1)
+```
+]
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+## 楼层
+.center[
+```{r louceng, echo = FALSE, message=FALSE, warning=FALSE}
+df_ershou %>% separate(HouseInfo, c("Size","Area","direction","decoration","height","year","building_type"), sep = "\\|", remove = FALSE) %>% mutate(louceng = str_extract(height,"\\w楼层")) %>% mutate(price = as.numeric(str_extract(Unit_Price,"\\d+"))) %>% bwplot(louceng ~ price, data = ., panel = panel.bpplot, scale = list(cex = c(1.2,1)),box.ratio = 0.5, cex.n = 1.1)
+```
+]
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+## 年份
+.center[
+```{r year1, echo = FALSE, message=FALSE, warning=FALSE, fig.height=6, fig.width=8}
+df_ershou %>% separate(HouseInfo, c("Size","Area","direction","decoration","height","year","building_type"), sep = "\\|", remove = FALSE) %>% mutate(year = as.numeric(str_extract(year,"\\d+"))) %>% pull(year)     %>% table(dnn = "year") %>% as.data.frame() %>% ggplot(aes(x = year, y = Freq, group = 1)) + geom_point()  + geom_line() + theme_bw() + theme(axis.text.x = element_text(angle = 45, hjust = 0.5))
+```
+]
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+## 年份
+.center[
+```{r year2, echo = FALSE, message=FALSE, warning=FALSE,fig.height=7, fig.width=5}
+df_ershou %>% separate(HouseInfo, c("Size","Area","direction","decoration","height","year","building_type"), sep = "\\|", remove = FALSE) %>% mutate(year = as.numeric(str_extract(year,"\\d+"))) %>% mutate(price = as.numeric(str_extract(Unit_Price,"\\d+"))) %>% bwplot(as.character(year) ~ price, data = ., panel = panel.bpplot,scale = list(cex = c(1.2,1)),box.ratio = 0.5, cex.n = 1.1) 
+```
+]
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+## Building type
+.center[
+```{r build, echo = FALSE, message=FALSE, warning=FALSE,fig.height=7, fig.width=5}
+df_ershou %>% separate(HouseInfo, c("Size","Area","direction","decoration","height","year","building_type"), sep = "\\|", remove = FALSE) %>% mutate(year = as.numeric(str_extract(year,"\\d+"))) %>% mutate(price = as.numeric(str_extract(Unit_Price,"\\d+")), building_type = str_replace(building_type,"\\s",""))  %>%  mutate(building_type = str_replace(building_type, "\\s","")) %>%  bwplot(building_type ~ price, data = ., panel = panel.bpplot, scale = list(cex = c(1.2,1)),box.ratio = 0.5, cex.n = 1.1) 
+```
+]
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+## Follower ~ day
+.center[
+```{r day_follower, echo = FALSE, fig.width=8, fig.height=6, message=FALSE, warning=FALSE}
+d = df_ershou %>% mutate(follower = str_extract(FollowInfo,"\\d*人"), time = str_extract(FollowInfo,"(\\w*年)|(\\w*月)|(\\d*天)"))  %>% mutate(time = str_replace_all(time,c("个" = "","一年" = "365","天" = ""))) %>% mutate(time1 = ifelse(str_detect(time,"月"), 30, 1)) %>% mutate(time = str_replace(time,"月","")) %>% mutate(day = as.numeric(time)*time1)  %>% mutate(price = as.numeric(str_extract(Unit_Price,"\\d+")), follower = as.numeric(str_replace(follower,"人",""))) 
+with(d, ggfreqScatter(day, follower, bins =c(100,50) , cuts = c(5,10,15,20,25,30,35), fcolor = viridis::viridis(6)) + theme_bw() + xlab("Day") + ylab("Follower") + theme(axis.title = element_text(size= 15), axis.text = element_text(size= 12)))
+```
+]
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+## Unit_Price ~ Followers
+.center[
+```{r price_follower, echo = FALSE, fig.width=8, fig.height=6, message=FALSE, warning=FALSE}
+d = df_ershou %>% mutate(follower = str_extract(FollowInfo,"\\d*人"), time = str_extract(FollowInfo,"(\\w*年)|(\\w*月)|(\\d*天)"))  %>% mutate(time = str_replace_all(time,c("个" = "","一年" = "365","天" = ""))) %>% mutate(time1 = ifelse(str_detect(time,"月"), 30, 1)) %>% mutate(time = str_replace(time,"月","")) %>% mutate(day = as.numeric(time)*time1)  %>% mutate(price = as.numeric(str_extract(Unit_Price,"\\d+")), follower = as.numeric(str_replace(follower,"人",""))) 
+with(d %>% filter(follower < 250), ggfreqScatter(follower, price/1000, xbreaks = c(5,10,20,30,50,100,150) , cuts = c(5,10,15,20,25,30,35), fcolor = viridis::viridis(6)) + theme_bw() + xlab("Followers") + ylab("Unit_Price") + theme(axis.title = element_text(size= 15), axis.text = element_text(size= 12), axis.text.x = element_text(angle = 90, vjust = 0.5)))
+```
+]
+
+---
+background-image: url("https://img1.gtimg.com/comic/pics/hv1/31/228/1840/119704171.jpg")
+background-size: 150px
+background-position: 93% 3%
+## Unit_Price ~ Days
+.center[
+```{r price_day, echo = FALSE, fig.width=8, fig.height=6, message=FALSE,warning=FALSE}
+with(d %>% filter(day <300 ), ggfreqScatter(day, price/1000, xbreaks = c(0,10,20,30,60,90,150) , cuts = c(5,10,15,20,25,30,35), fcolor = viridis::viridis(6)) + theme_bw() + xlab("Online_days") + ylab("Unit_Price") + theme(axis.title = element_text(size= 15), axis.text = element_text(size= 12), axis.text.x = element_text(angle = 90, vjust = 0.5)))
+```
+]
+---
 class: center, middle
 
 ## **谢谢老板!**
 
 该项目所有资料记录在[**github**](https://github.com/w4356y/House_price)
+
+???
+
+End of the presentation.
+ 

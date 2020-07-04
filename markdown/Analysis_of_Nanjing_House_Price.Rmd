@@ -3,11 +3,11 @@ title: "Analysis_of_House_Price_of_Nanjing"
 author: "Weijiang"
 date: "2020/5/15"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
-```{r setup, include=T}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 #setwd("..")
 library(readxl)
@@ -17,12 +17,7 @@ library(stringr)
 library(knitr)
 source("../R/plot_func.R")
 Sys.getlocale()
-#str <- "abc123-def"
-#options(encoding="UTF-8")
-library(evaluate)
-a = "十四"
-a
-Sys.setlocale(category = "LC_ALL", locale = "chs")
+iris %>% group_by(Species) %>% summarise(  n = n(),水水 = n())
 ```
 
 ## R load_data
@@ -51,11 +46,31 @@ df_loupan$Unit_price[!is.na(df_loupan$Unit_price)] %>% as.numeric() %>% cut(., b
 
 ```
 
+
+
+
+## R load shp file
+
+```{r load_shp, eval=FALSE}
+nj_loc <- sf::read_sf("9948457/南京市电子地图/县界_region.shp")
+nj_line <- sf::read_sf("9948457/南京市电子地图/省道_polyline.shp")
+tm_shape(nj_loc) + tm_polygons('NAME') + tm_shape(nj_line) + tm_lines(labels = "ID")  + tm_shape(nj_build) + tm_dots() + tm_shape(nj_water) + tm_polygons() 
+```
+
 ## Ershoufang price
 ```{r ershou, eval=FALSE}
 df_ershou = read_xlsx("../data/nanjing_ershoufang_2020-05-14.xlsx") %>% select(-c(1)) %>% distinct()
 df_pos = read_xlsx("position_district.xlsx")
-df_ershou %>% mutate(price = str_extract(Unit_Price, "\\d+")) %>% group_by(Position2) %>% summarise(数量 = n_distinct(Title), median_price = median(as.numeric(price))) %>% left_join(df_pos, by = c("Position2" = "Location")) %>% arrange(District, median_price) 
+df_ershou %>% mutate(price = str_extract(Unit_Price, "\\d+")) %>% group_by(Position2) %>% summarise(n = n_distinct(Title), median_price = median(as.numeric(price))) %>% left_join(df_pos, by = c("Position2" = "Location")) %>% arrange(District, median_price) 
 df_ershou %>% mutate(price = str_extract(Unit_Price, "\\d+")) %>% left_join(df_pos, by = c("Position2" = "Location")) %>%  group_by(District) %>% summarise(n = n_distinct(Title), median_price = median(as.numeric(price))) %>% arrange(median_price)  
 ```
- 
+
+## Ershoufang house in Jiangning district
+```{r jn_dis, eval=FALSE}
+df_jn = read_xlsx("../data/nanjing_ershoufang_jiangning_2020-05-19.xlsx") %>% select(-c(1)) %>% 
+distinct()
+## relation of available count and median price
+df_jn %>% mutate(price = str_extract(Unit_Price, "\\d+")) %>% group_by(Position2) %>% summarise(n = n_distinct(Title), median_price = median(as.numeric(price))) %>% left_join(df_pos, by = c("Position2" = "Location")) %>% arrange(n, median_price)  %>% ggplot(aes(x = n, y = median_price, label = Position2)) + geom_point()  + ggrepel::geom_text_repel()+ theme_bw() + xlab("# of Available") + theme(axis.title = element_text(size= 16), axis.text = element_text(size= 13))
+
+
+```
