@@ -1,0 +1,11 @@
+
+.table {
+  display: table;
+  border: 2px solid red;
+}
+
+.conclusion {
+  font-size:100%;
+  font-family:"Times New Roman";
+  color: blue;
+}
